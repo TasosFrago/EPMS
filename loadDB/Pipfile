@@ -7,6 +7,8 @@ name = "pypi"
 sshtunnel = "*"
 pymysql = "*"
 python-dotenv = "*"
+faker = "*"
+pydantic = "*"
 
 [dev-packages]
 

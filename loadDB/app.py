@@ -4,6 +4,8 @@ import os
 import pymysql
 from sshtunnel import SSHTunnelForwarder
 
+import consumer_data
+
 from dataclasses import dataclass
 from contextlib import contextmanager
 from dotenv import load_dotenv
@@ -36,7 +38,7 @@ config = Config()
 
 
 @contextmanager
-def sshtunnelAndDBconnection(config):
+def sshtunnelAndMySQLconn(config):
     with SSHTunnelForwarder(
         (config.server_host, config.server_port),
         ssh_username=config.usrname,
@@ -61,7 +63,11 @@ def sshtunnelAndDBconnection(config):
             print("Closed DB connection")
         print("SSH connection closed.")
 
-with sshtunnelAndDBconnection(config) as conn:
+for _ in range(10):
+    consumer = consumer_data.getConsumerData()
+    print(consumer)
+
+with sshtunnelAndMySQLconn(config) as conn:
     curs = conn.cursor()
     curs.execute("SHOW TABLES;")
     for table in curs.fetchall():
