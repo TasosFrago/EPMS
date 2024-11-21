@@ -4,7 +4,7 @@ import os
 import pymysql
 from sshtunnel import SSHTunnelForwarder
 
-import consumer_data
+from consumer_data import  getConsumerData
 
 from dataclasses import dataclass
 from contextlib import contextmanager
@@ -53,7 +53,8 @@ def sshtunnelAndMySQLconn(config):
             user=config.usrname,
             passwd=config.passwd,
             db=config.db_name,
-            port=localport
+            port=localport,
+            charset="utf8mb4"
         )
         try:
             yield connection
@@ -64,7 +65,7 @@ def sshtunnelAndMySQLconn(config):
         print("SSH connection closed.")
 
 for _ in range(10):
-    consumer = consumer_data.getConsumerData()
+    consumer = getConsumerData()
     print(consumer)
 
 with sshtunnelAndMySQLconn(config) as conn:
