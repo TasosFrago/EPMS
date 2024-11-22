@@ -1,50 +1,55 @@
+CREATE DATABASE lab2425omada1_EPMS;
+USE lab2425omada1_EPMS;
+ALTER DATABASE lab2425omada1_EPMS CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 CREATE TABLE CONSUMER (
-	   user_id int not null,
+	   user_id int not null AUTO_INCREMENT,
 	   first_name varchar(50) not null,
 	   last_name varchar(50) not null,
-	   email varchar(62) not null,
-	   cell int not null,
-	   landline int,
+	   email varchar(62) not null UNIQUE,
+	   cell int not null UNIQUE,
+	   landline int UNIQUE,
 	   credit_info int,
 
-	   primary key(user_id)
+	   primary key (user_id)
 );
 
 CREATE TABLE PROVIDER (
-	   name varchar(40) not null,
-	   phone int not null,
-	   email varchar(50) not null,
+	   name varchar(50) not null,
+	   phone int not null UNIQUE,
+	   email varchar(50) not null UNIQUE,
 
-	   primary key(name)
+	   primary key (name)
 );
 
 CREATE TABLE METER (
-	   supply_id int not null,
+	   supply_id int not null AUTO_INCREMENT,
 	   status bool not null,
-	   kWh int not null,
+	   kWh int DEFAULT 0,
 	   address varchar(100) not null,
 	   rated_power int not null,
 	   owner int not null,
 
-	   primary key(supply_id)
+	   primary key (supply_id),
+	   foreign key (owner) references CONSUMER(user_id)
 );
 
 CREATE TABLE PLAN (
-	   plan_id int not null,
+	   plan_id int not null AUTO_INCREMENT,
 	   type varchar(40) not null,
-	   price int not null,
+	   price float not null,
 	   name varchar(50),
-	   provider varchar(40) not null,
+	   provider varchar(50) not null,
 	   
-	   primary key(plan_id)
+	   primary key (plan_id),
+	   foreign key (provider) references PROVIDER(name)
 );
 
 CREATE TABLE MONTH (
 	   name varchar(30) not null,
 	   year int not null,
 
-	   primary key(name),
-	   primary key(year)
+	   primary key (name, year)
 );
 
 /*
@@ -53,16 +58,20 @@ CREATE TABLE MONTH (
  *	ALTER TABLE tbl AUTO_INCREMENT = num; to start from bigger number
  */
 CREATE TABLE INVOICE (
-	   invoice_id int not null,
-	   total int not null DEFAULT 0,
+	   invoice_id int not null AUTO_INCREMENT,
+	   total int DEFAULT 0,
 	   current_cost int not null,
-	   receiver int,
-	   associated_with int not null,
-	   provider varchar(40) not null,
+	   receiver int not null,
+	   meter int not null,
+	   provider varchar(50) not null,
 	   month varchar(30) not null,
 	   year int not null,
 
-	   primary key(invoice_id)
+	   primary key (invoice_id),
+	   foreign key (receiver) references CONSUMER(user_id),
+	   foreign key (provider) references PROVIDER(name),
+	   foreign key (meter) references METER(supply_id),
+	   foreign key (month, year) references MONTH(name, year)
 );
 
 CREATE TABLE AVAILABILITY(
@@ -70,9 +79,9 @@ CREATE TABLE AVAILABILITY(
 	   month varchar(30) not null,
 	   plan int not null,
 
-	   primary key(year),  -- TODO 
-	   primary key(month), -- TODO 
-	   primary key (plan)  -- TODO 
+	   primary key (year, month, plan),
+	   foreign key (month, year) references MONTH(name, year),
+	   foreign key (plan) references PLAN(plan_id)
 );
 
 CREATE TABLE CHOOSES (
@@ -80,17 +89,20 @@ CREATE TABLE CHOOSES (
 	   plan int not null,
 	   supply_id int not null,
 
-	   primary key(user),
-	   primary key(plan),
-	   primary key(supply_id)
+	   primary key (user, plan, supply_id),
+	   foreign key (user) references CONSUMER(user_id),
+	   foreign key (plan) references PLAN(plan_id),
+	   foreign key (supply_id) references METER(supply_id)
 );
 
 CREATE TABLE PAYS (
 	   user int not null,
-	   provider varchar(40) not null,
+	   provider varchar(50) not null,
 	   supply_id int not null,
-	   amount int not null DEFAULT 0,
+	   amount int DEFAULT 0,
 
-	   primary key(user),
-	   primary key(provider)
+	   primary key (user, provider),
+
+	   foreign key (user) references CONSUMER(user_id),
+	   foreign key (provider) references PROVIDER(name)
 );
