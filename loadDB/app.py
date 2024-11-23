@@ -115,4 +115,3 @@ with sshtunnelAndMySQLconn(config) as conn:
     curs.execute("SELECT * FROM METER")
     for consumer in curs.fetchall():
         print(consumer)
-
