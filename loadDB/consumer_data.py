@@ -9,18 +9,18 @@ cell_codes = ["685185", "685500", "685505", "685550", "690000", "690002", "69000
 landline_codes = ["21", "231", "241", "251", "261", "271", "281", "291", "222", "233", "234", "235", "237", "238", "239", "242", "243", "244", "246", "247", "248", "249", "252", "253", "254", "255", "256", "257", "259", "262", "263", "264", "265", "266", "267", "268", "269", "272", "273", "274", "275", "276", "277", "279", "282", "283", "284", "285", "286", "289", "222", "232"]
 
 
-def fake_phone_number(isLandLine=False) -> int:
+def fake_phone_number(isLandLine=False) -> str:
     fake = Faker("el_GR")
     phone_codes = landline_codes if isLandLine else cell_codes
     phone_c = phone_codes[randrange(0, len(phone_codes))]
-    return int(phone_c + fake.msisdn()[(len(phone_c)+3):])
+    return (phone_c + fake.msisdn()[(len(phone_c)+3):])
 
 class Consumer_t(BaseModel):
     first_name: str
     last_name: str
     email: str
-    cell: int
-    landline: Optional[int]
+    cell: str
+    landline: Optional[str]
     credit_info: Optional[int]
 
 def getConsumerData() -> Consumer_t:
