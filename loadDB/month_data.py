@@ -102,5 +102,5 @@ months: list[Month_t] = [
     Month_t(
         name = "December",
         year = 2025
-    ),
+    )
 ]
