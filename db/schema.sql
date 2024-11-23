@@ -7,8 +7,8 @@ CREATE TABLE CONSUMER (
 	   first_name varchar(50) not null,
 	   last_name varchar(50) not null,
 	   email varchar(62) not null UNIQUE,
-	   cell int not null UNIQUE,
-	   landline int UNIQUE,
+	   cell varchar(10) not null UNIQUE,
+	   landline varchar(10) UNIQUE,
 	   credit_info int,
 
 	   primary key (user_id)
@@ -16,7 +16,7 @@ CREATE TABLE CONSUMER (
 
 CREATE TABLE PROVIDER (
 	   name varchar(50) not null,
-	   phone int not null UNIQUE,
+	   phone varchar(10) not null UNIQUE,
 	   email varchar(50) not null UNIQUE,
 
 	   primary key (name)
