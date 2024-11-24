@@ -24,7 +24,7 @@ CREATE TABLE PROVIDER (
 
 CREATE TABLE METER (
 	   supply_id int not null AUTO_INCREMENT,
-	   status bool not null,
+	   status bool DEFAULT 0,
 	   kWh int DEFAULT 0,
 	   address varchar(100) not null,
 	   rated_power int not null,
@@ -40,16 +40,12 @@ CREATE TABLE PLAN (
 	   price float not null,
 	   name varchar(50),
 	   provider varchar(50) not null,
+	   month varchar(30) not null,
+	   year int not null,
+	   duration int not null,
 	   
 	   primary key (plan_id),
 	   foreign key (provider) references PROVIDER(name)
-);
-
-CREATE TABLE MONTH (
-	   name varchar(30) not null,
-	   year int not null,
-
-	   primary key (name, year)
 );
 
 /*
@@ -59,28 +55,17 @@ CREATE TABLE MONTH (
  */
 CREATE TABLE INVOICE (
 	   invoice_id int not null AUTO_INCREMENT,
-	   total int DEFAULT 0,
-	   current_cost int not null,
+	   total float DEFAULT 0,
+	   current_cost float not null,
 	   receiver int not null,
 	   meter int not null,
 	   provider varchar(50) not null,
-	   month varchar(30) not null,
-	   year int not null,
+	   plan int not null,
 
 	   primary key (invoice_id),
 	   foreign key (receiver) references CONSUMER(user_id),
 	   foreign key (provider) references PROVIDER(name),
 	   foreign key (meter) references METER(supply_id),
-	   foreign key (month, year) references MONTH(name, year)
-);
-
-CREATE TABLE AVAILABILITY(
-	   year int not null,
-	   month varchar(30) not null,
-	   plan int not null,
-
-	   primary key (year, month, plan),
-	   foreign key (month, year) references MONTH(name, year),
 	   foreign key (plan) references PLAN(plan_id)
 );
 
@@ -96,12 +81,13 @@ CREATE TABLE CHOOSES (
 );
 
 CREATE TABLE PAYS (
+	   payment_id int not null AUTO_INCREMENT,
 	   user int not null,
 	   provider varchar(50) not null,
 	   supply_id int not null,
 	   amount int DEFAULT 0,
 
-	   primary key (user, provider),
+	   primary key (payment_id),
 
 	   foreign key (user) references CONSUMER(user_id),
 	   foreign key (provider) references PROVIDER(name)
