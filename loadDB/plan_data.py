@@ -1,6 +1,4 @@
-from typing import Optional
-
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, field_validator
 
 class Plan_t(BaseModel):
     name: str
@@ -10,20 +8,22 @@ class Plan_t(BaseModel):
     month: int      # 1-24
     duration: int
     
-    @validator("type")
-    def validate_type(cls, v):
-        valid_types = {
+    @field_validator("type")
+    @classmethod
+    def validate_type(cls, v: str):
+        valid_types = [
             "GREEN",
             "YELLOW",
             "BLUE"
-        }
+        ] 
         if v not in valid_types:
             raise ValueError(f"Invalid type: {v}. Must be YELLOW, BLUE or GREEN.")
         return v
     
-    @validator("provider")
-    def validate_provider(cls, v):
-        valid_providers = {
+    @field_validator("provider")
+    @classmethod
+    def validate_provider(cls, v: str):
+        valid_providers = [
             "ELPEDISON",
             "EUNICE",
             "NRG",
@@ -37,13 +37,14 @@ class Plan_t(BaseModel):
             "ΖΕΝΙΘ",
             "ΗΡΩΝ",
             "ΦΥΣΙΚΟ ΑΕΡΙΟ ΕΛΛΗΝΙΚΗ ΕΤΑΙΡΙΑ ΕΝΕΡΓΕΙΑΣ"
-        }
+        ]
         if v not in valid_providers:
             raise ValueError(f"Invalid provider: {v}. Must be one of {valid_providers}.")
         return v
     
-    @validator("price")
-    def validate_price(cls, v):
+    @field_validator("price")
+    @classmethod
+    def validate_price(cls, v: int):
         if not (0.05 < v < 0.5):
             raise ValueError(f"Invalid price {v}. Must be between 0.05 and 0.5.")
         return v
