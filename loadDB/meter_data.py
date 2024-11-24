@@ -1,4 +1,5 @@
 import random
+from typing import Optional
 
 from pydantic import BaseModel
 from faker import Faker
@@ -16,15 +17,14 @@ def gen_meterNum() -> int:
 def gen_kWh() -> int:
     """Generate believable kWh spend per month"""
     highValProb = 0.05 # 5% chance for high spender
-
     if(random.random() < highValProb):
-        return random.randint(5000, 10000)
+        return random.randint(800, 1200)
     else:
-        return int(random.triangular(500, 2000, 1000))
+        return int(random.triangular(200, 800, 400))
 
 class Meter_t(BaseModel):
-    status: int
-    kWh: int
+    status: Optional[int]
+    kWh: Optional[int]
     address: str
     rated_power: int
     owner: int
@@ -33,9 +33,9 @@ def getMeterData(owner_id: int) -> Meter_t:
     fake = Faker("el_GR")
 
     return Meter_t(
-        status = int(True), # Assume that account is established so always TRUE
-        kWh = 0, # New connection so kWh is reset to 0
+        status = None,
+        kWh = None,
         address = fake.line_address(),
-        rated_power = 500,
+        rated_power = 8,
         owner = owner_id
     )
