@@ -85,7 +85,7 @@ CREATE TABLE PAYS (
 	   user int not null,
 	   provider varchar(50) not null,
 	   supply_id int not null,
-	   amount int DEFAULT 0,
+	   amount float DEFAULT 0,
 
 	   primary key (payment_id),
 

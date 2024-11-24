@@ -182,7 +182,7 @@ def loadTBL_CHOOSES_INVOICE_PAYS(connection: Connection_t) -> None:
                 WHERE supply_id = {meter["supply_id"]};
                 """)
             kWh = gen_kWh()
-            cost = kWh * random_plan["price"]
+            cost: float = kWh * random_plan["price"]
             curs.execute(f"""
             UPDATE METER
             SET kWh = {kWh}
