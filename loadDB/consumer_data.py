@@ -24,12 +24,15 @@ class Consumer_t(BaseModel):
     credit_info: Optional[int]
 
 def getConsumerData() -> Consumer_t:
-    fake = Faker("el_GR")
+    fake = Faker()
     profile = fake.simple_profile()
+    full_name = profile["name"].split()
+    first_name = full_name[0]
+    last_name = " ".join(full_name[1:])
 
     return Consumer_t(
-        first_name=fake.first_name(),
-        last_name=fake.last_name(),
+        first_name=first_name,
+        last_name=last_name,
         email=str(profile['mail']),
         cell=fake_phone_number(),
         landline=fake_phone_number(True) if (random() < 0.3) else None,
