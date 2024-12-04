@@ -7,6 +7,7 @@ CREATE TABLE CONSUMER (
 	   first_name varchar(50) not null,
 	   last_name varchar(50) not null,
 	   email varchar(62) not null UNIQUE,
+	   password binary(60) not null,
 	   cell varchar(10) not null UNIQUE,
 	   landline varchar(10) UNIQUE,
 	   credit_info int,
@@ -18,20 +19,37 @@ CREATE TABLE PROVIDER (
 	   name varchar(50) not null,
 	   phone varchar(10) not null UNIQUE,
 	   email varchar(50) not null UNIQUE,
+	   password binary(60) not null,
 
 	   primary key (name)
 );
 
+CREATE TABLE EMPLOYEE (
+	   badge int not null AUTO_INCREMENT,
+	   first_name varchar(50) not null,
+	   last_name varchar(50) not null,
+	   email varchar(62) not null UNIQUE,
+	   password binary(60) not null,
+	   phone varchar(10) not null UNIQUE,
+	   salary float DEFAULT 830,
+
+	   primary key (badge)
+);
+
 CREATE TABLE METER (
 	   supply_id int not null AUTO_INCREMENT,
+	   plan int,
 	   status bool DEFAULT 0,
 	   kWh int DEFAULT 0,
 	   address varchar(100) not null,
 	   rated_power int not null,
 	   owner int not null,
+	   adgent int,
 
 	   primary key (supply_id),
-	   foreign key (owner) references CONSUMER(user_id)
+	   foreign key (owner) references CONSUMER(user_id),
+	   foreign key (plan) references PLAN(plan_id),
+	   foreign key (adgent) references EMPLOYEE(badge)
 );
 
 CREATE TABLE PLAN (
@@ -72,12 +90,10 @@ CREATE TABLE INVOICE (
 CREATE TABLE CHOOSES (
 	   user int not null,
 	   plan int not null,
-	   supply_id int not null,
 
-	   primary key (user, plan, supply_id),
+	   primary key (user, plan),
 	   foreign key (user) references CONSUMER(user_id),
-	   foreign key (plan) references PLAN(plan_id),
-	   foreign key (supply_id) references METER(supply_id)
+	   foreign key (plan) references PLAN(plan_id)
 );
 
 CREATE TABLE PAYS (
