@@ -15,6 +15,7 @@ from typing import Final
 from dataclasses import dataclass, field
 from contextlib import contextmanager
 from dotenv import load_dotenv
+from pathlib import Path
 
 # logging.basicConfig(level=logging.DEBUG)
 
@@ -22,7 +23,9 @@ CONSUMER_NUMBER: Final[int] = 100
 
 Connection_t = pymysql.connections.Connection
 
-load_dotenv()
+dotenv_path = Path("../.env")
+
+load_dotenv(dotenv_path=dotenv_path)
 @dataclass(frozen=True)
 class TerminalColors:
     # Reset
