@@ -17,9 +17,11 @@ import (
 
 
 func main() {
-    err := godotenv.Load("../.env")
-    if err != nil {
-        log.Fatalf("Error loading environment vars: %s", err)
+    if _, err := os.Stat("../.env"); err == nil {
+        err := godotenv.Load("../.env")
+        if err != nil {
+            fmt.Printf("Error loading environment vars: %s", err)
+        }
     }
 
     config := CredentialConfig{
@@ -60,7 +62,7 @@ func main() {
     })
     r.GET("/consumers", getConsumers)
 
-    r.Run("localhost:8080")
+    r.Run("0.0.0.0:8080")
 
 }
 
