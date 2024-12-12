@@ -6,6 +6,7 @@ import pymysql
 from sshtunnel import SSHTunnelForwarder
 
 from consumer_data import  getConsumerData
+from employee_data import getEmployeeData
 from meter_data import getMeterData, gen_meterNum, gen_kWh
 from provider_data import providers
 from plan_data import plans
@@ -20,12 +21,13 @@ from pathlib import Path
 # logging.basicConfig(level=logging.DEBUG)
 
 CONSUMER_NUMBER: Final[int] = 100
+EMPLOYEE_NUMBER: Final[int] = 5
 
 Connection_t = pymysql.connections.Connection
 
 dotenv_path = Path("../.env")
 
-load_dotenv(dotenv_path=dotenv_path)
+load_dotenv(dotenv_path=dotenv_path, override=True)
 @dataclass(frozen=True)
 class TerminalColors:
     # Reset
@@ -109,6 +111,22 @@ def loadTBL_CONSUMER_METER(connection: Connection_t) -> None:
             ("{meter.address}", {meter.rated_power}, {meter.owner});
             """)
     print(f"{termC.GREEN}Loaded tables CONSUMER and METER!{termC.RESET}")
+    return
+
+def loadTBL_EMPLOYEE(connection: Connection_t) -> None:
+    print("Starting loading table EMPLOYEE...")
+    curs = connection.cursor()
+
+    for _ in range(EMPLOYEE_NUMBER):
+        employee = getEmployeeData()
+        salary = [', salary', f',"{employee.salary}"'] if employee.salary else ["",""]
+        curs.execute(f"""
+        INSERT INTO EMPLOYEE
+        (first_name, last_name, email, password, phone {salary[0]})
+        VALUES
+        ("{employee.first_name}", "{employee.last_name}", "{employee.email}", "{employee.password}", "{employee.phone}" {salary[1]})
+         """)
+    print(f"{termC.GREEN}Loaded table EMPLOYEE!{termC.RESET}")
     return
 
 def loadTBL_PROVIDER(connection: Connection_t) -> None:
@@ -214,19 +232,20 @@ def main():
             print(f"{table=}")
 
         ## DELETES 
-        curs.execute("DELETE FROM INVOICE;")
-        curs.execute("DELETE FROM CHOOSES;")
-        curs.execute("DELETE FROM PAYS;")
-        curs.execute("DELETE FROM METER;") # First delete METER because it has foreign keys
-        curs.execute("DELETE FROM CONSUMER;")
-        curs.execute("DELETE FROM PLAN;")
-        curs.execute("DELETE FROM PROVIDER;")
+        ##curs.execute("DELETE FROM INVOICE;")
+        ##curs.execute("DELETE FROM CHOOSES;")
+        ##curs.execute("DELETE FROM PAYS;")
+        #curs.execute("DELETE FROM METER;") # First delete METER because it has foreign keys
+        #curs.execute("DELETE FROM CONSUMER;")
+        #curs.execute("DELETE FROM PLAN;")
+        #curs.execute("DELETE FROM PROVIDER;")
 
-        ## INSERT DATA
-        loadTBL_CONSUMER_METER(conn)
-        loadTBL_PROVIDER(conn)
-        loadTBL_PLAN(conn)
-        loadTBL_CHOOSES_INVOICE_PAYS(conn)
+        ## INSERT DATAprint(os.getenv("USERNAME"))
+
+        #loadTBL_CONSUMER_METER(conn)
+        #loadTBL_PROVIDER(conn)
+        #loadTBL_PLAN(conn)
+        #loadTBL_CHOOSES_INVOICE_PAYS(conn)
 
         printTBL = lambda tbl: [print(f"{termC.YELLOW}{row}{termC.RESET}") for row in (curs.execute(f"SELECT * FROM {tbl}"), curs.fetchall())[1]]
 
