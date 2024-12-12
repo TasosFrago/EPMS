@@ -25,7 +25,7 @@ Connection_t = pymysql.connections.Connection
 
 dotenv_path = Path("../.env")
 
-load_dotenv(dotenv_path=dotenv_path)
+load_dotenv(dotenv_path=dotenv_path, override=True)
 @dataclass(frozen=True)
 class TerminalColors:
     # Reset
@@ -214,19 +214,19 @@ def main():
             print(f"{table=}")
 
         ## DELETES 
-        curs.execute("DELETE FROM INVOICE;")
-        curs.execute("DELETE FROM CHOOSES;")
-        curs.execute("DELETE FROM PAYS;")
-        curs.execute("DELETE FROM METER;") # First delete METER because it has foreign keys
-        curs.execute("DELETE FROM CONSUMER;")
-        curs.execute("DELETE FROM PLAN;")
-        curs.execute("DELETE FROM PROVIDER;")
+        #curs.execute("DELETE FROM INVOICE;")
+        #curs.execute("DELETE FROM CHOOSES;")
+        #curs.execute("DELETE FROM PAYS;")
+        #curs.execute("DELETE FROM METER;") # First delete METER because it has foreign keys
+        #curs.execute("DELETE FROM CONSUMER;")
+        #curs.execute("DELETE FROM PLAN;")
+        #curs.execute("DELETE FROM PROVIDER;")
 
         ## INSERT DATA
-        loadTBL_CONSUMER_METER(conn)
-        loadTBL_PROVIDER(conn)
-        loadTBL_PLAN(conn)
-        loadTBL_CHOOSES_INVOICE_PAYS(conn)
+        #loadTBL_CONSUMER_METER(conn)
+        #loadTBL_PROVIDER(conn)
+        #loadTBL_PLAN(conn)
+        #loadTBL_CHOOSES_INVOICE_PAYS(conn)
 
         printTBL = lambda tbl: [print(f"{termC.YELLOW}{row}{termC.RESET}") for row in (curs.execute(f"SELECT * FROM {tbl}"), curs.fetchall())[1]]
 
