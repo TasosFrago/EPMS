@@ -2,7 +2,7 @@ CREATE DATABASE lab2425omada1_EPMS;
 USE lab2425omada1_EPMS;
 ALTER DATABASE lab2425omada1_EPMS CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE TABLE CONSUMER (
+CREATE TABLE CONSUMER ( -- 1
 	   user_id int not null AUTO_INCREMENT,
 	   first_name varchar(50) not null,
 	   last_name varchar(50) not null,
@@ -15,7 +15,7 @@ CREATE TABLE CONSUMER (
 	   primary key (user_id)
 );
 
-CREATE TABLE PROVIDER (
+CREATE TABLE PROVIDER ( -- 2
 	   name varchar(50) not null,
 	   phone varchar(10) not null UNIQUE,
 	   email varchar(50) not null UNIQUE,
@@ -24,7 +24,7 @@ CREATE TABLE PROVIDER (
 	   primary key (name)
 );
 
-CREATE TABLE EMPLOYEE (
+CREATE TABLE EMPLOYEE ( -- 3
 	   badge int not null AUTO_INCREMENT,
 	   first_name varchar(50) not null,
 	   last_name varchar(50) not null,
@@ -36,7 +36,21 @@ CREATE TABLE EMPLOYEE (
 	   primary key (badge)
 );
 
-CREATE TABLE METER (
+CREATE TABLE PLAN ( -- 4
+	   plan_id int not null AUTO_INCREMENT,
+	   type varchar(40) not null,
+	   price float not null,
+	   name varchar(50),
+	   provider varchar(50) not null,
+	   month varchar(30) not null,
+	   year int not null,
+	   duration int not null,
+	   
+	   primary key (plan_id),
+	   foreign key (provider) references PROVIDER(name)
+);
+
+CREATE TABLE METER ( -- 5
 	   supply_id int not null AUTO_INCREMENT,
 	   plan int,
 	   status bool DEFAULT 0,
@@ -52,26 +66,7 @@ CREATE TABLE METER (
 	   foreign key (adgent) references EMPLOYEE(badge)
 );
 
-CREATE TABLE PLAN (
-	   plan_id int not null AUTO_INCREMENT,
-	   type varchar(40) not null,
-	   price float not null,
-	   name varchar(50),
-	   provider varchar(50) not null,
-	   month varchar(30) not null,
-	   year int not null,
-	   duration int not null,
-	   
-	   primary key (plan_id),
-	   foreign key (provider) references PROVIDER(name)
-);
-
-/*
- *	id int unsigned: bigger number
- *	auto_increament: use LAST_INSERT_ID()
- *	ALTER TABLE tbl AUTO_INCREMENT = num; to start from bigger number
- */
-CREATE TABLE INVOICE (
+CREATE TABLE INVOICE ( -- 6
 	   invoice_id int not null AUTO_INCREMENT,
 	   total float DEFAULT 0,
 	   current_cost float not null,
@@ -87,7 +82,7 @@ CREATE TABLE INVOICE (
 	   foreign key (plan) references PLAN(plan_id)
 );
 
-CREATE TABLE CHOOSES (
+CREATE TABLE CHOOSES ( -- 7
 	   user int not null,
 	   plan int not null,
 
@@ -96,7 +91,7 @@ CREATE TABLE CHOOSES (
 	   foreign key (plan) references PLAN(plan_id)
 );
 
-CREATE TABLE PAYS (
+CREATE TABLE PAYS ( -- 8
 	   payment_id int not null AUTO_INCREMENT,
 	   user int not null,
 	   provider varchar(50) not null,
