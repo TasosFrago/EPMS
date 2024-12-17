@@ -9,6 +9,8 @@ pymysql = "*"
 python-dotenv = "*"
 faker = "*"
 pydantic = "*"
+passlib = "*"
+bcrypt = "*"
 
 [dev-packages]
 

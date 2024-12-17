@@ -93,9 +93,9 @@ def loadTBL_CONSUMER_METER(connection: Connection_t) -> None:
 
         curs.execute(f"""
         INSERT INTO CONSUMER
-        (first_name, last_name, email, cell{landline[0]})
+        (first_name, last_name, email, password, cell{landline[0]})
         VALUES
-        ("{cons.first_name}", "{cons.last_name}", "{cons.email}", "{cons.cell}" {landline[1]});
+        ("{cons.first_name}", "{cons.last_name}", "{cons.email}", "{cons.password}", "{cons.cell}" {landline[1]});
         """)
         curs.execute("SELECT LAST_INSERT_ID();")
         owner_id = int(curs.fetchone()[0])
@@ -235,14 +235,13 @@ def main():
         ##curs.execute("DELETE FROM INVOICE;")
         ##curs.execute("DELETE FROM CHOOSES;")
         ##curs.execute("DELETE FROM PAYS;")
-        #curs.execute("DELETE FROM METER;") # First delete METER because it has foreign keys
-        #curs.execute("DELETE FROM CONSUMER;")
+        curs.execute("DELETE FROM METER;") # First delete METER because it has foreign keys
+        curs.execute("DELETE FROM CONSUMER;")
         #curs.execute("DELETE FROM PLAN;")
         #curs.execute("DELETE FROM PROVIDER;")
 
-        ## INSERT DATAprint(os.getenv("USERNAME"))
-
-        #loadTBL_CONSUMER_METER(conn)
+        ## INSERT DATA
+        loadTBL_CONSUMER_METER(conn)
         #loadTBL_PROVIDER(conn)
         #loadTBL_PLAN(conn)
         #loadTBL_CHOOSES_INVOICE_PAYS(conn)
@@ -250,7 +249,7 @@ def main():
         printTBL = lambda tbl: [print(f"{termC.YELLOW}{row}{termC.RESET}") for row in (curs.execute(f"SELECT * FROM {tbl}"), curs.fetchall())[1]]
 
         printTBL("CONSUMER")
-        # printTBL("METER")
+        printTBL("METER")
         # printTBL("PROVIDER")
         # printTBL("PLAN")
         # printTBL("INVOICE")

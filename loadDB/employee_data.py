@@ -1,6 +1,6 @@
 from typing import Optional
     
-from loadDB.consumer_data import fake_phone_number
+from consumer_data import fake_phone_number
 
 from pydantic import BaseModel
 from faker import Faker
