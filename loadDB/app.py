@@ -5,12 +5,14 @@ import random
 import pymysql
 from sshtunnel import SSHTunnelForwarder
 
-from consumer_data import  getConsumerData
-from employee_data import getEmployeeData
-from meter_data import getMeterData, gen_meterNum, gen_kWh
-from provider_data import providers
-from plan_data import plans
-from month_data import months
+from utls.consumer_data import  getConsumerData
+from utls.employee_data import getEmployeeData
+from utls.meter_data import getMeterData, gen_meterNum, gen_kWh
+from utls.provider_data import providers
+from utls.plan_data import plans
+from utls.month_data import months
+
+from utls.password_data import PASSWORD_FILE, get_password
 
 from typing import Final
 from dataclasses import dataclass, field
@@ -20,12 +22,20 @@ from pathlib import Path
 
 # logging.basicConfig(level=logging.DEBUG)
 
+# SET character_set_client = "utf8mb4",
+#     character_set_results = "utf8mb4",
+#     character_set_connection = "utf8mb4";
+
 CONSUMER_NUMBER: Final[int] = 100
 EMPLOYEE_NUMBER: Final[int] = 5
 
 Connection_t = pymysql.connections.Connection
 
 dotenv_path = Path("../.env")
+
+def pr_file_header(header: str) -> None:
+    with open(PASSWORD_FILE, "a") as fh:
+        fh.write(f"###### {header}-PASSWORDS ######\n")
 
 load_dotenv(dotenv_path=dotenv_path, override=True)
 @dataclass(frozen=True)
@@ -86,6 +96,9 @@ def sshtunnelAndMySQLconn(config):
 
 def loadTBL_CONSUMER_METER(connection: Connection_t) -> None:
     print("Starting loading tables CONSUMER and METER...")
+
+    pr_file_header("CONSUMER")
+
     curs = connection.cursor()
     for _ in range(CONSUMER_NUMBER):
         cons = getConsumerData()
@@ -115,6 +128,9 @@ def loadTBL_CONSUMER_METER(connection: Connection_t) -> None:
 
 def loadTBL_EMPLOYEE(connection: Connection_t) -> None:
     print("Starting loading table EMPLOYEE...")
+
+    pr_file_header("EMPLOYEE")
+
     curs = connection.cursor()
 
     for _ in range(EMPLOYEE_NUMBER):
@@ -131,13 +147,16 @@ def loadTBL_EMPLOYEE(connection: Connection_t) -> None:
 
 def loadTBL_PROVIDER(connection: Connection_t) -> None:
     print("Starting loading table PROVIDER...")
+
+    pr_file_header("PROVIDER")
+
     curs = connection.cursor()
     for provider in providers:
         curs.execute(f"""
         INSERT INTO PROVIDER
-        (name, phone, email)
+        (name, phone, email, password)
         VALUES
-        ("{provider.name}", "{provider.phone}", "{provider.email}");
+        ("{provider.name}", "{provider.phone}", "{provider.email}", "{get_password(provider.email)}");
         """)
     print(f"{termC.GREEN}Loaded table PROVIDER!{termC.RESET}")
     return
@@ -182,7 +201,7 @@ def loadTBL_CHOOSES_INVOICE_PAYS(connection: Connection_t) -> None:
                 """)
                 curs.execute(f"""
                 UPDATE METER
-                SET status = {int(True)}
+                SET status = {int(True)}, plan = {random_plan["plan_id"]}
                 WHERE supply_id = {meter["supply_id"]};
                 """)
             else:
@@ -200,7 +219,7 @@ def loadTBL_CHOOSES_INVOICE_PAYS(connection: Connection_t) -> None:
                 curs.execute(f"""
                 UPDATE CHOOSES
                 SET plan = {random_plan["plan_id"]}
-                WHERE supply_id = {meter["supply_id"]};
+                WHERE user = {meter["owner"]};
                 """)
             kWh = gen_kWh()
             cost: float = kWh * random_plan["price"]
@@ -225,6 +244,11 @@ def loadTBL_CHOOSES_INVOICE_PAYS(connection: Connection_t) -> None:
     return
 
 def main():
+    # Initialize passwords file
+    if os.path.isfile(PASSWORD_FILE):
+        print("Removing passwords file")
+        os.remove(PASSWORD_FILE)
+
     with sshtunnelAndMySQLconn(config) as conn:
         curs = conn.cursor()
         curs.execute("SHOW TABLES;")
@@ -232,18 +256,20 @@ def main():
             print(f"{table=}")
 
         ## DELETES 
-        ##curs.execute("DELETE FROM INVOICE;")
-        ##curs.execute("DELETE FROM CHOOSES;")
-        ##curs.execute("DELETE FROM PAYS;")
+        curs.execute("DELETE FROM INVOICE;")
+        curs.execute("DELETE FROM CHOOSES;")
+        curs.execute("DELETE FROM PAYS;")
         curs.execute("DELETE FROM METER;") # First delete METER because it has foreign keys
+        curs.execute("DELETE FROM EMPLOYEE;")
         curs.execute("DELETE FROM CONSUMER;")
-        #curs.execute("DELETE FROM PLAN;")
-        #curs.execute("DELETE FROM PROVIDER;")
+        curs.execute("DELETE FROM PLAN;")
+        curs.execute("DELETE FROM PROVIDER;")
 
         ## INSERT DATA
+        loadTBL_EMPLOYEE(conn)
         loadTBL_CONSUMER_METER(conn)
-        #loadTBL_PROVIDER(conn)
-        #loadTBL_PLAN(conn)
+        loadTBL_PROVIDER(conn)
+        loadTBL_PLAN(conn)
         #loadTBL_CHOOSES_INVOICE_PAYS(conn)
 
         printTBL = lambda tbl: [print(f"{termC.YELLOW}{row}{termC.RESET}") for row in (curs.execute(f"SELECT * FROM {tbl}"), curs.fetchall())[1]]
