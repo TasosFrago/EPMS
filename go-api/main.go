@@ -20,7 +20,7 @@ func main() {
     if _, err := os.Stat("../.env"); err == nil {
         err := godotenv.Load("../.env")
         if err != nil {
-            fmt.Printf("Error loading environment vars: %s", err)
+            log.Fatalf("Error loading environment vars: %s", err)
         }
     }
 
@@ -74,6 +74,7 @@ func getConsumers(c *gin.Context) {
 
     consumers, err := consumerData(db)
     if err != nil {
+        fmt.Printf("\nError in getConsumer: %w \n", err)
         c.JSON(http.StatusInternalServerError, gin.H{"error": err})
     }
     c.JSON(http.StatusOK, consumers)
@@ -95,6 +96,7 @@ func consumerData(db *sql.DB) ([]Consumer, error) {
             &cons.FirstName,
             &cons.LastName,
             &cons.Email,
+            &cons.Password,
             &cons.Cell,
             &cons.Landline,
             &cons.CreditInfo,
