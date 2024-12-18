@@ -277,11 +277,17 @@ def main():
 
         ## DELETES 
         curs.execute("DELETE FROM INVOICE;")
+        curs.execute("ALTER TABLE INVOICE AUTO_INCREMENT = 1;")
         curs.execute("DELETE FROM PAYS;")
+        curs.execute("ALTER TABLE PAYS AUTO_INCREMENT = 1;")
         curs.execute("DELETE FROM METER;") # First delete METER because it has foreign keys
+        curs.execute("ALTER TABLE METER AUTO_INCREMENT = 1;")
         curs.execute("DELETE FROM EMPLOYEE;")
+        curs.execute("ALTER TABLE EMPLOYEE AUTO_INCREMENT = 1;")
         curs.execute("DELETE FROM CONSUMER;")
+        curs.execute("ALTER TABLE CONSUMER AUTO_INCREMENT = 1;")
         curs.execute("DELETE FROM PLAN;")
+        curs.execute("ALTER TABLE PLAN AUTO_INCREMENT = 1;")
         curs.execute("DELETE FROM PROVIDER;")
         curs.execute("DELETE FROM DEPARTMENT;")
 
