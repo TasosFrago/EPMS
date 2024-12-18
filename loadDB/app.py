@@ -132,9 +132,6 @@ def loadTBL_CONSUMER_METER(connection: Connection_t) -> None:
         curs.execute("SELECT LAST_INSERT_ID();")
         owner_id = int(curs.fetchone()[0])
 
-        curs.execute("SELECT badge FROM EMPLOYEE ORDER BY RAND() LIMIT 1;")
-        badge = int(curs.fetchone()[0])
-
         ## Load METER table
         for _ in range(gen_meterNum()):
             meter = getMeterData(owner_id)
