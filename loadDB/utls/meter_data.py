@@ -24,11 +24,12 @@ def gen_kWh() -> int:
 
 class Meter_t(BaseModel):
     plan: Optional[int]
-    status: Optional[int]
+    status: Optional[bool]
     kWh: Optional[int]
     address: str
     rated_power: int
     owner: int
+    department: Optional[str]
     agent: Optional[int]
 
 def getMeterData(owner_id: int) -> Meter_t:
@@ -41,5 +42,6 @@ def getMeterData(owner_id: int) -> Meter_t:
         address = fake.line_address(),
         rated_power = 8,
         owner = owner_id,
+        department = None,
         agent = None
     )

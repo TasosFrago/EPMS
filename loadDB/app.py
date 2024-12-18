@@ -9,6 +9,7 @@ from utls.consumer_data import  getConsumerData
 from utls.employee_data import getEmployeeData
 from utls.meter_data import getMeterData, gen_meterNum, gen_kWh
 from utls.provider_data import providers
+from utls.department_data import departments
 from utls.plan_data import plans
 from utls.month_data import months
 
@@ -94,12 +95,30 @@ def sshtunnelAndMySQLconn(config):
             print(f"{termC.GREEN}Closed DB connection.{termC.RESET}")
         print(f"{termC.WHITE}SSH connection closed.{termC.RESET}")
 
+def loadTBL_DEPARTMENT(connection: Connection_t) -> None:
+    print("Starting loading table DEPARTMENT...")
+    
+    pr_file_header("DEPARTMENT")
+    
+    curs = connection.cursor()
+    
+    for department in departments:
+        curs.execute(f"""
+        INSERT INTO DEPARTMENT
+        (region, phone)
+        VALUES
+        ("{department.region}", "{department.phone}");
+        """)
+    print(f"{termC.GREEN}Loaded table DEPARTMENT!{termC.RESET}")
+    return
+
 def loadTBL_CONSUMER_METER(connection: Connection_t) -> None:
     print("Starting loading tables CONSUMER and METER...")
 
     pr_file_header("CONSUMER")
 
     curs = connection.cursor()
+    
     for _ in range(CONSUMER_NUMBER):
         cons = getConsumerData()
         landline = [', landline', f', "{cons.landline}"'] if cons.landline else ["", ""]
@@ -119,12 +138,15 @@ def loadTBL_CONSUMER_METER(connection: Connection_t) -> None:
         ## Load METER table
         for _ in range(gen_meterNum()):
             meter = getMeterData(owner_id)
+            
+            curs.execute(f"SELECT badge, department FROM EMPLOYEE ORDER BY RAND() LIMIT 1;")
+            agent = curs.fetchall()
 
             curs.execute(f"""
             INSERT INTO METER
-            (address, rated_power, owner, agent)
+            (address, rated_power, owner, department, agent)
             VALUES
-            ("{meter.address}", {meter.rated_power}, {meter.owner}, {badge});
+            ("{meter.address}", {meter.rated_power}, {meter.owner}, "{agent["department"]}", {agent["badge"]});
             """)
     print(f"{termC.GREEN}Loaded tables CONSUMER and METER!{termC.RESET}")
     return
@@ -140,9 +162,9 @@ def loadTBL_EMPLOYEE(connection: Connection_t) -> None:
         employee = getEmployeeData()
         curs.execute(f"""
         INSERT INTO EMPLOYEE
-        (first_name, last_name, email, password, phone)
+        (first_name, last_name, email, password, phone, department)
         VALUES
-        ("{employee.first_name}", "{employee.last_name}", "{employee.email}", "{employee.password}", "{employee.phone}")
+        ("{employee.first_name}", "{employee.last_name}", "{employee.email}", "{employee.password}", "{employee.phone}", "{employee.department}")
          """)
     print(f"{termC.GREEN}Loaded table EMPLOYEE!{termC.RESET}")
     return
@@ -153,6 +175,7 @@ def loadTBL_PROVIDER(connection: Connection_t) -> None:
     pr_file_header("PROVIDER")
 
     curs = connection.cursor()
+    
     for provider in providers:
         curs.execute(f"""
         INSERT INTO PROVIDER
@@ -165,7 +188,9 @@ def loadTBL_PROVIDER(connection: Connection_t) -> None:
 
 def loadTBL_PLAN(connection: Connection_t) -> None:
     print("Starting loading table PLAN...")
+    
     curs = connection.cursor()
+    
     for plan in plans:
         curs.execute(f"""
         INSERT INTO PLAN
@@ -178,14 +203,13 @@ def loadTBL_PLAN(connection: Connection_t) -> None:
 
 def loadTBL_INVOICE_PAYS(connection: Connection_t) -> None:
     print("Starting loading tables INVOICE and PAYS...")
+    
     cursorclass = pymysql.cursors.DictCursor # type: ignore My bad it was pyrights fault
     curs = connection.cursor(cursorclass)
 
-    curs.execute(f"""
-    SELECT supply_id, owner
-    FROM METER;
-    """)
+    curs.execute(f"SELECT supply_id, owner FROM METER;")
     meter_info = curs.fetchall()
+    
     for i in range(0, 10):
         curs.execute(f"""
         SELECT plan_id, provider, price
@@ -267,12 +291,14 @@ def main():
         curs.execute("DELETE FROM CONSUMER;")
         curs.execute("DELETE FROM PLAN;")
         curs.execute("DELETE FROM PROVIDER;")
+        curs.execute("DELETE FROM DEPARTMENT;")
 
         ## INSERT DATA
-        loadTBL_EMPLOYEE(conn)
-        loadTBL_CONSUMER_METER(conn)
         loadTBL_PROVIDER(conn)
         loadTBL_PLAN(conn)
+        loadTBL_DEPARTMENT(conn)
+        loadTBL_EMPLOYEE(conn)
+        loadTBL_CONSUMER_METER(conn)
         loadTBL_INVOICE_PAYS(conn)
 
         printTBL = lambda tbl: [print(f"{termC.YELLOW}{row}{termC.RESET}") for row in (curs.execute(f"SELECT * FROM {tbl}"), curs.fetchall())[1]]
