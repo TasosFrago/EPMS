@@ -180,6 +180,7 @@ def loadTBL_INVOICE_PAYS(connection: Connection_t) -> None:
     print("Starting loading tables INVOICE and PAYS...")
     cursorclass = pymysql.cursors.DictCursor # type: ignore My bad it was pyrights fault
     curs = connection.cursor(cursorclass)
+
     curs.execute(f"""
     SELECT supply_id, owner
     FROM METER;
