@@ -225,11 +225,11 @@ departments: list[Department_t] = [
     ),
     Department_t(
         region = "Καστοριά",
-        phone = "24"
+        phone = "2483645713"
     ),
     Department_t(
         region = "Κοζάνη",
-        phone = "24"
+        phone = "2498756453"
     ),
     Department_t(
         region = "Άγιο Όρος",
