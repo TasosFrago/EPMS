@@ -113,15 +113,18 @@ def loadTBL_CONSUMER_METER(connection: Connection_t) -> None:
         curs.execute("SELECT LAST_INSERT_ID();")
         owner_id = int(curs.fetchone()[0])
 
+        curs.execute("SELECT badge FROM EMPLOYEE ORDER BY RAND() LIMIT 1;")
+        badge = int(curs.fetchone()[0])
+
         ## Load METER table
         for _ in range(gen_meterNum()):
             meter = getMeterData(owner_id)
 
             curs.execute(f"""
             INSERT INTO METER
-            (address, rated_power, owner)
+            (address, rated_power, owner, agent)
             VALUES
-            ("{meter.address}", {meter.rated_power}, {meter.owner});
+            ("{meter.address}", {meter.rated_power}, {meter.owner}, {badge});
             """)
     print(f"{termC.GREEN}Loaded tables CONSUMER and METER!{termC.RESET}")
     return
@@ -135,12 +138,11 @@ def loadTBL_EMPLOYEE(connection: Connection_t) -> None:
 
     for _ in range(EMPLOYEE_NUMBER):
         employee = getEmployeeData()
-        salary = [', salary', f',"{employee.salary}"'] if employee.salary else ["",""]
         curs.execute(f"""
         INSERT INTO EMPLOYEE
-        (first_name, last_name, email, password, phone {salary[0]})
+        (first_name, last_name, email, password, phone)
         VALUES
-        ("{employee.first_name}", "{employee.last_name}", "{employee.email}", "{employee.password}", "{employee.phone}" {salary[1]})
+        ("{employee.first_name}", "{employee.last_name}", "{employee.email}", "{employee.password}", "{employee.phone}")
          """)
     print(f"{termC.GREEN}Loaded table EMPLOYEE!{termC.RESET}")
     return
@@ -174,8 +176,8 @@ def loadTBL_PLAN(connection: Connection_t) -> None:
     print(f"{termC.GREEN}Loaded table PLAN!{termC.RESET}")
     return
 
-def loadTBL_CHOOSES_INVOICE_PAYS(connection: Connection_t) -> None:
-    print("Starting loading tables CHOOSES, INVOICE and PAYS...")
+def loadTBL_INVOICE_PAYS(connection: Connection_t) -> None:
+    print("Starting loading tables INVOICE and PAYS...")
     cursorclass = pymysql.cursors.DictCursor # type: ignore My bad it was pyrights fault
     curs = connection.cursor(cursorclass)
     curs.execute(f"""
@@ -193,12 +195,12 @@ def loadTBL_CHOOSES_INVOICE_PAYS(connection: Connection_t) -> None:
         for meter in meter_info:
             random_plan = available_plans[random.randrange(0, len(available_plans))]
             if i == 0:
-                curs.execute(f"""
-                INSERT INTO CHOOSES
-                (user, plan, supply_id)
-                VALUES
-                ({meter["owner"]}, {random_plan["plan_id"]}, {meter["supply_id"]});
-                """)
+                #curs.execute(f"""
+                #INSERT INTO CHOOSES
+                #(user, plan, supply_id)
+                #VALUES
+                #({meter["owner"]}, {random_plan["plan_id"]}, {meter["supply_id"]});
+                #""")
                 curs.execute(f"""
                 UPDATE METER
                 SET status = {int(True)}, plan = {random_plan["plan_id"]}
@@ -207,7 +209,7 @@ def loadTBL_CHOOSES_INVOICE_PAYS(connection: Connection_t) -> None:
             else:
                 curs.execute(f"""
                 SELECT plan_id, month, year, duration
-                FROM CHOOSES, PLAN
+                FROM METER, PLAN
                 WHERE plan = plan_id AND supply_id = {meter["supply_id"]};
                 """)
                 prev_plan = curs.fetchone()
@@ -217,9 +219,9 @@ def loadTBL_CHOOSES_INVOICE_PAYS(connection: Connection_t) -> None:
                     random_plan["plan_id"] = prev_plan["plan_id"]
 
                 curs.execute(f"""
-                UPDATE CHOOSES
+                UPDATE METER
                 SET plan = {random_plan["plan_id"]}
-                WHERE user = {meter["owner"]};
+                WHERE supply_id = {meter["supply_id"]};
                 """)
             kWh = gen_kWh()
             cost: float = kWh * random_plan["price"]
@@ -240,7 +242,7 @@ def loadTBL_CHOOSES_INVOICE_PAYS(connection: Connection_t) -> None:
             VALUES
             ({meter["owner"]}, "{random_plan["provider"]}", {meter["supply_id"]}, {cost});
             """)
-    print(f"{termC.GREEN}Loaded tables CHOOSES, INVOICE and PAYS!{termC.RESET}")
+    print(f"{termC.GREEN}Loaded tables INVOICE and PAYS!{termC.RESET}")
     return
 
 def main():
@@ -270,7 +272,7 @@ def main():
         loadTBL_CONSUMER_METER(conn)
         loadTBL_PROVIDER(conn)
         loadTBL_PLAN(conn)
-        #loadTBL_CHOOSES_INVOICE_PAYS(conn)
+        loadTBL_INVOICE_PAYS(conn)
 
         printTBL = lambda tbl: [print(f"{termC.YELLOW}{row}{termC.RESET}") for row in (curs.execute(f"SELECT * FROM {tbl}"), curs.fetchall())[1]]
 

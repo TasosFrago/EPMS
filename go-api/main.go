@@ -1,113 +1,112 @@
 package main
 
 import (
-    "database/sql"
-    "fmt"
-    "os"
-    "log"
-    _ "encoding/json"
-    "net/http"
+	"database/sql"
+	_ "encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
 
-    "github.com/joho/godotenv"
-    "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 
-    . "github.com/TasosFrago/epms/db_connection"
-    . "github.com/TasosFrago/epms/models"
+	"github.com/TasosFrago/epms/db_connection"
+	"github.com/TasosFrago/epms/models"
 )
 
-
 func main() {
-    if _, err := os.Stat("../.env"); err == nil {
-        err := godotenv.Load("../.env")
-        if err != nil {
-            log.Fatalf("Error loading environment vars: %s", err)
-        }
-    }
+	if _, err := os.Stat("../.env"); err == nil {
+		err := godotenv.Load("../.env")
+		if err != nil {
+			log.Fatalf("Error loading environment vars: %s", err)
+		}
+	}
 
-    config := CredentialConfig{
-        Usrname: os.Getenv("USERNAME"),
-        Passwd: os.Getenv("PASSWORD"),
-        ServerHost: os.Getenv("HOST"),
-        ServerPort: os.Getenv("PORT"),
-        DBHost: "localhost:3306",
-        DBName: "lab2425omada1_EPMS",
-    }
+	config := db_connection.CredentialConfig{
+		Usrname:    os.Getenv("USERNAME"),
+		Passwd:     os.Getenv("PASSWORD"),
+		ServerHost: os.Getenv("HOST"),
+		ServerPort: os.Getenv("PORT"),
+		DBHost:     "localhost:3306",
+		DBName:     "lab2425omada1_EPMS",
+	}
 
-    db, err := ConnectDBoSSH(config) 
-    if err != nil {
-        log.Fatalf("Error connecting to db: %v", err)
-    }
-    defer db.Cleanup()
-    
-    // for _, consumer := range consumers {
-    //     jsonData, err := json.MarshalIndent(consumer, "", "  ")
-    //     if err != nil {
-    //         fmt.Println("Error marshalling to JSON:", err)
-    //         continue
-    //     }
-    //     fmt.Println(string(jsonData))
-    // }
+	db, err := db_connection.ConnectDBoSSH(config)
+	if err != nil {
+		log.Fatalf("Error connecting to db: %v", err)
+	}
+	defer db.Cleanup()
 
-    r := gin.Default()
+	// for _, consumer := range consumers {
+	//     jsonData, err := json.MarshalIndent(consumer, "", "  ")
+	//     if err != nil {
+	//         fmt.Println("Error marshalling to JSON:", err)
+	//         continue
+	//     }
+	//     fmt.Println(string(jsonData))
+	// }
 
-    r.Use(func(c *gin.Context) {
-        c.Set("db", db.Conn)
-        c.Next()
-    })
+	r := gin.Default()
 
-    r.GET("/", func(c *gin.Context) {
-        c.JSON(http.StatusOK, gin.H{
-            "msg": "hello world",
-        })
-    })
-    r.GET("/consumers", getConsumers)
+	r.Use(func(c *gin.Context) {
+		c.Set("db", db.Conn)
+		c.Next()
+	})
 
-    r.Run("0.0.0.0:8080")
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "hello world",
+		})
+	})
+	r.GET("/consumers", getConsumers)
+
+	r.Run("0.0.0.0:8080")
 
 }
 
 func getConsumers(c *gin.Context) {
-    db, ok := c.MustGet("db").(*sql.DB)
-    if !ok {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not db connection"})
-    }
+	db, ok := c.MustGet("db").(*sql.DB)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not db connection"})
+	}
 
-    consumers, err := consumerData(db)
-    if err != nil {
-        fmt.Printf("\nError in getConsumer: %w \n", err)
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-    }
-    c.JSON(http.StatusOK, consumers)
+	consumers, err := consumerData(db)
+	if err != nil {
+		fmt.Printf("\nError in getConsumer: %v \n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+	}
+	c.JSON(http.StatusOK, consumers)
 }
 
-func consumerData(db *sql.DB) ([]Consumer, error) {
-    var consumers []Consumer
+func consumerData(db *sql.DB) ([]models.Consumer, error) {
+	var consumers []models.Consumer
 
-    rows, err := db.Query("SELECT * FROM CONSUMER")
-    if err != nil {
-        return nil, fmt.Errorf("consumerData: %w", err)
-    }
-    defer rows.Close()
+	rows, err := db.Query("SELECT * FROM CONSUMER")
+	if err != nil {
+		return nil, fmt.Errorf("consumerData: %w", err)
+	}
+	defer rows.Close()
 
-    for rows.Next() {
-        var cons Consumer
-        if err := rows.Scan(
-            &cons.ID,
-            &cons.FirstName,
-            &cons.LastName,
-            &cons.Email,
-            &cons.Password,
-            &cons.Cell,
-            &cons.Landline,
-            &cons.CreditInfo,
-        ); err != nil {
-            return nil, fmt.Errorf("consumerData: %v", err)
-        }
-        consumers = append(consumers, cons)
-    }
+	for rows.Next() {
+		var cons models.Consumer
+		if err := rows.Scan(
+			&cons.ID,
+			&cons.FirstName,
+			&cons.LastName,
+			&cons.Email,
+			&cons.Password,
+			&cons.Cell,
+			&cons.Landline,
+			&cons.CreditInfo,
+		); err != nil {
+			return nil, fmt.Errorf("consumerData: %v", err)
+		}
+		consumers = append(consumers, cons)
+	}
 
-    if err := rows.Err(); err != nil {
-        return nil, fmt.Errorf("consumerData: %v", err)
-    }
-    return consumers, nil
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("consumerData: %v", err)
+	}
+	return consumers, nil
 }

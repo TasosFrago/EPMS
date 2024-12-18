@@ -58,7 +58,7 @@ CREATE TABLE METER ( -- 5
 	   address varchar(100) not null,
 	   rated_power int not null,
 	   owner int not null,
-	   adgent int,
+	   agent int,
 
 	   primary key (supply_id),
 	   foreign key (owner) references CONSUMER(user_id),
@@ -82,16 +82,7 @@ CREATE TABLE INVOICE ( -- 6
 	   foreign key (plan) references PLAN(plan_id)
 );
 
-CREATE TABLE CHOOSES ( -- 7
-	   user int not null,
-	   plan int not null,
-
-	   primary key (user, plan),
-	   foreign key (user) references CONSUMER(user_id),
-	   foreign key (plan) references PLAN(plan_id)
-);
-
-CREATE TABLE PAYS ( -- 8
+CREATE TABLE PAYS ( -- 7
 	   payment_id int not null AUTO_INCREMENT,
 	   user int not null,
 	   provider varchar(50) not null,

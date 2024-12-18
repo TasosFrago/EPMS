@@ -29,7 +29,7 @@ class Meter_t(BaseModel):
     address: str
     rated_power: int
     owner: int
-    adgent: Optional[int]
+    agent: Optional[int]
 
 def getMeterData(owner_id: int) -> Meter_t:
     fake = Faker("el_GR")
@@ -41,5 +41,5 @@ def getMeterData(owner_id: int) -> Meter_t:
         address = fake.line_address(),
         rated_power = 8,
         owner = owner_id,
-        adgent = None
+        agent = None
     )
