@@ -1,7 +1,9 @@
+import random
 from typing import Optional
     
-from utls.consumer_data import fake_phone_number
-from utls.password_data import get_password
+from consumer_data import fake_phone_number
+from department_data import departments
+from password_data import get_password
 
 from pydantic import BaseModel
 from faker import Faker
@@ -14,7 +16,7 @@ class Employee_t(BaseModel):
     password: str
     phone: str
     salary: Optional[float]
-
+    department: str
     
 def getEmployeeData() -> Employee_t:
     fake = Faker()
@@ -23,6 +25,9 @@ def getEmployeeData() -> Employee_t:
 
     first_name = full_name[0]
     last_name = " ".join(full_name[1:])
+    
+    regions = [dept.region for dept in departments]
+    rand_dept = random.choice(regions)
 
     return Employee_t(
         first_name = first_name,
@@ -30,5 +35,6 @@ def getEmployeeData() -> Employee_t:
         email = str(profile["mail"]),
         password = get_password(str(profile["mail"])),
         phone = fake_phone_number(),
-        salary = None
+        salary = None,
+        department = rand_dept
     )
