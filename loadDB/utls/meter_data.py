@@ -23,19 +23,23 @@ def gen_kWh() -> int:
         return int(random.triangular(200, 800, 400))
 
 class Meter_t(BaseModel):
+    plan: Optional[int]
     status: Optional[int]
     kWh: Optional[int]
     address: str
     rated_power: int
     owner: int
+    agent: Optional[int]
 
 def getMeterData(owner_id: int) -> Meter_t:
     fake = Faker("el_GR")
 
     return Meter_t(
+        plan = None,
         status = None,
         kWh = None,
         address = fake.line_address(),
         rated_power = 8,
-        owner = owner_id
+        owner = owner_id,
+        agent = None
     )
