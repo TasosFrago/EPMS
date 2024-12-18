@@ -24,7 +24,7 @@ def gen_kWh() -> int:
 
 class Meter_t(BaseModel):
     plan: Optional[int]
-    status: Optional[bool]
+    status: Optional[int]
     kWh: Optional[int]
     address: str
     rated_power: int

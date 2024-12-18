@@ -1,9 +1,9 @@
 import random
 from typing import Optional
     
-from consumer_data import fake_phone_number
-from department_data import departments
-from password_data import get_password
+from utls.consumer_data import fake_phone_number
+from utls.department_data import departments
+from utls.password_data import get_password
 
 from pydantic import BaseModel
 from faker import Faker
