@@ -77,7 +77,7 @@ CREATE TABLE METER ( -- 6
 	foreign key (plan) references PLAN(plan_id),
 	foreign key (owner) references CONSUMER(user_id),
 	foreign key (department) references DEPARTMENT(region),
-	foreign key (adgent) references EMPLOYEE(badge)
+	foreign key (agent) references EMPLOYEE(badge)
 );
 
 CREATE TABLE INVOICE ( -- 7
