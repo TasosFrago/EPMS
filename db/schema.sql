@@ -66,9 +66,6 @@ CREATE TABLE METER ( -- 5
 	   foreign key (adgent) references EMPLOYEE(badge)
 );
 
-<<<<<<< Updated upstream
-CREATE TABLE INVOICE ( -- 6
-=======
 CREATE TABLE PLAN (
 	   plan_id int not null AUTO_INCREMENT,
 	   type varchar(40) not null,
@@ -83,8 +80,7 @@ CREATE TABLE PLAN (
 	   foreign key (provider) references PROVIDER(name)
 );
 
-CREATE TABLE INVOICE (
->>>>>>> Stashed changes
+CREATE TABLE INVOICE ( -- 6
 	   invoice_id int not null AUTO_INCREMENT,
 	   total float DEFAULT 0,
 	   current_cost float not null,
