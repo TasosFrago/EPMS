@@ -7,7 +7,7 @@ class Department_t(BaseModel):
     @field_validator("phone")
     @classmethod
     def validate_phone(cls, v: str):
-        valid_prefixes = ["21", "22", "23", "24", "25", "26", "27", "28"]
+        valid_prefixes = ("21", "22", "23", "24", "25", "26", "27", "28")
         if len(v) != 10 or not v.isdigit():
             raise ValueError(f"Invalid phone number: {v}. Must be 10 digits.")
         if not v.startswith(valid_prefixes):
