@@ -117,6 +117,8 @@ def loadTBL_CONSUMER_METER(connection: Connection_t) -> None:
 
     pr_file_header("CONSUMER")
 
+    cursorclass = pymysql.cursors.DictCursor
+    cursD = connection.cursor(cursorclass)
     curs = connection.cursor()
     
     for _ in range(CONSUMER_NUMBER):
@@ -136,8 +138,8 @@ def loadTBL_CONSUMER_METER(connection: Connection_t) -> None:
         for _ in range(gen_meterNum()):
             meter = getMeterData(owner_id)
             
-            curs.execute(f"SELECT badge, department FROM EMPLOYEE ORDER BY RAND() LIMIT 1;")
-            agent = curs.fetchall()
+            cursD.execute(f"SELECT badge, department FROM EMPLOYEE ORDER BY RAND() LIMIT 1;")
+            agent = cursD.fetchone()
 
             curs.execute(f"""
             INSERT INTO METER
