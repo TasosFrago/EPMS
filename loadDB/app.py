@@ -275,7 +275,6 @@ def main():
 
         ## DELETES 
         curs.execute("DELETE FROM INVOICE;")
-        curs.execute("DELETE FROM CHOOSES;")
         curs.execute("DELETE FROM PAYS;")
         curs.execute("DELETE FROM METER;") # First delete METER because it has foreign keys
         curs.execute("DELETE FROM EMPLOYEE;")
