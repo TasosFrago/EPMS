@@ -66,20 +66,6 @@ CREATE TABLE METER ( -- 5
 	   foreign key (adgent) references EMPLOYEE(badge)
 );
 
-CREATE TABLE PLAN (
-	   plan_id int not null AUTO_INCREMENT,
-	   type varchar(40) not null,
-	   price float not null,
-	   name varchar(50),
-	   provider varchar(50) not null,
-	   month varchar(30) not null,
-	   year int not null,
-	   duration int not null,
-	   
-	   primary key (plan_id),
-	   foreign key (provider) references PROVIDER(name)
-);
-
 CREATE TABLE INVOICE ( -- 6
 	   invoice_id int not null AUTO_INCREMENT,
 	   total float DEFAULT 0,
