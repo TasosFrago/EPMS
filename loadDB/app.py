@@ -220,12 +220,6 @@ def loadTBL_INVOICE_PAYS(connection: Connection_t) -> None:
         for meter in meter_info:
             random_plan = available_plans[random.randrange(0, len(available_plans))]
             if i == 0:
-                #curs.execute(f"""
-                #INSERT INTO CHOOSES
-                #(user, plan, supply_id)
-                #VALUES
-                #({meter["owner"]}, {random_plan["plan_id"]}, {meter["supply_id"]});
-                #""")
                 curs.execute(f"""
                 UPDATE METER
                 SET status = {int(True)}, plan = {random_plan["plan_id"]}
