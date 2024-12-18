@@ -98,8 +98,6 @@ def sshtunnelAndMySQLconn(config):
 def loadTBL_DEPARTMENT(connection: Connection_t) -> None:
     print("Starting loading table DEPARTMENT...")
     
-    pr_file_header("DEPARTMENT")
-    
     curs = connection.cursor()
     
     for department in departments:
