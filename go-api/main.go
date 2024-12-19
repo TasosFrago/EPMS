@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 	"github.com/joho/godotenv"
 
 	"github.com/TasosFrago/epms/db_connection"
@@ -49,6 +50,7 @@ func main() {
 
 	r := gin.Default()
 
+	r.Use(cors.Default())
 	r.Use(func(c *gin.Context) {
 		c.Set("db", db.Conn)
 		c.Next()
