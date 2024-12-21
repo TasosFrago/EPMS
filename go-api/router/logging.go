@@ -58,10 +58,14 @@ func LogAvailableEndpoints(router *mux.Router) {
 	color.Cyan("Available Endpoints:")
 	router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		pathTemplate, err := route.GetPathTemplate()
-		if err == nil {
-			methods, _ := route.GetMethods()
-			log.Printf("- %s [%s]", pathTemplate, bgCyan(" "+strings.Join(methods[:], "")+" "))
+		if err != nil {
+			return nil
 		}
+		methods, _ := route.GetMethods()
+		if len(methods) == 0 {
+			return nil
+		}
+		log.Printf("- %s [%s]", pathTemplate, bgCyan(" "+strings.Join(methods[:], "")+" "))
 		return nil
 	})
 }

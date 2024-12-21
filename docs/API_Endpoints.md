@@ -1,11 +1,8 @@
--──-──-──-──-──-──-──-──-──-──-──-──-──-/ AUTHENTICATION \-──-──-──-──-──-──-──-──-──-──-──-──-──-
+## AUTHENTICATION
 
 To be expanded...
 
-
-
-
--──-──-──-──-──-──-──-──-──-──-──-──-──-/ CONSUMER \-──-──-──-──-──-──-──-──-──-──-──-──-──-
+## CONSUMER
 
 ⚠ ⚠ ⚠ consumer/user_id reserved for dashboard ⚠ ⚠ ⚠
 
@@ -62,7 +59,7 @@ To be expanded...
     · user_id, provider, (sorting) ──> payment_id, supply_id, ammount
     · user_id, provider, supply_id, (sorting) ──> payment_id, ammount
 
--──-──-──-──-──-──-──-──-──-──-──-──-──-/ PROVIDER \-──-──-──-──-──-──-──-──-──-──-──-──-──-
+## PROVIDER
 
 ⚠ ⚠ ⚠ /provider/name reserved for dashboard ⚠ ⚠ ⚠
 
@@ -129,7 +126,7 @@ To be expanded...
     · name, supply_id ──> payment_id, user, ammount
     · name, user_id ──> payment_id, supply_id, ammount
 
--──-──-──-──-──-──-──-──-──-──-──-──-──-/ DEPARTMENT \-──-──-──-──-──-──-──-──-──-──-──-──-──-
+## DEPARTMENT
 
 ⚠ ⚠ ⚠ /department/region reserved for dashboard ⚠ ⚠ ⚠
 
@@ -171,7 +168,7 @@ No login needed for departments. Assume they use their own database.
 ▶ Contact provider (GET) /department/region/providers/name
     · provider_name ──> phone, email
 
--──-──-──-──-──-──-──-──-──-──-──-──-──-/ EMPLOYEE \-──-──-──-──-──-──-──-──-──-──-──-──-──-
+## EMPLOYEE
 
 ⚠ ⚠ ⚠ employee/badge reserved for dashboard ⚠ ⚠ ⚠
 
