@@ -5,14 +5,14 @@ import (
 	_ "encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
-	"github.com/gin-gonic/gin"
+	_ "github.com/gorilla/handlers"
 	"github.com/joho/godotenv"
 
 	"github.com/TasosFrago/epms/db_connection"
 	"github.com/TasosFrago/epms/models"
+	"github.com/TasosFrago/epms/router"
 )
 
 func main() {
@@ -38,45 +38,10 @@ func main() {
 	}
 	defer db.Cleanup()
 
-	// for _, consumer := range consumers {
-	//     jsonData, err := json.MarshalIndent(consumer, "", "  ")
-	//     if err != nil {
-	//         fmt.Println("Error marshalling to JSON:", err)
-	//         continue
-	//     }
-	//     fmt.Println(string(jsonData))
-	// }
-
-	r := gin.Default()
-
-	r.Use(func(c *gin.Context) {
-		c.Set("db", db.Conn)
-		c.Next()
-	})
-
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"msg": "hello world",
-		})
-	})
-	r.GET("/consumers", getConsumers)
-
-	r.Run("0.0.0.0:8080")
-
-}
-
-func getConsumers(c *gin.Context) {
-	db, ok := c.MustGet("db").(*sql.DB)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not db connection"})
+	api := router.NewServer("0.0.0.0:8080")
+	if err := api.Run(); err != nil {
+		log.Fatalf("Error starting server: %v", err)
 	}
-
-	consumers, err := consumerData(db)
-	if err != nil {
-		fmt.Printf("\nError in getConsumer: %v \n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-	}
-	c.JSON(http.StatusOK, consumers)
 }
 
 func consumerData(db *sql.DB) ([]models.Consumer, error) {
