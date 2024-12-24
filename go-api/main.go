@@ -61,7 +61,7 @@ func main() {
 			"msg": "hello world",
 		})
 	})
-	r.GET("/consumers", getConsumers)
+	r.GET("api/v1/consumer/", getConsumers)
 
 	r.Run("0.0.0.0:8080")
 
