@@ -11,14 +11,14 @@ import (
 )
 
 func (h ConsumerHandler) GetConsumer(w http.ResponseWriter, r *http.Request) {
-	consumers, err := consumerData(h.db)
+	consumers, err := consumerData(h.dbSession)
 	if err != nil {
-		httpError.InternalServerError(w, fmt.Sprintf("ERROR: Getting consumer data: %v", err))
+		httpError.InternalServerError(w, fmt.Sprintf("Getting consumer data: %v", err))
 	}
 
 	jsonBytes, err := json.Marshal(consumers)
 	if err != nil {
-		httpError.InternalServerError(w, fmt.Sprintf("ERROR: Error marshaling data: %v", err))
+		httpError.InternalServerError(w, fmt.Sprintf("Error marshaling data: %v", err))
 	}
 
 	w.WriteHeader(http.StatusOK)

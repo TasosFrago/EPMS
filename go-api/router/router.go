@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/TasosFrago/epms/api/auth"
 	"github.com/TasosFrago/epms/api/consumer"
 
 	"github.com/fatih/color"
@@ -28,7 +29,7 @@ func NewServer(addr string, db *sql.DB) *APIServer {
 }
 
 func (a *APIServer) Run() error {
-	router := mux.NewRouter()
+	router := mux.NewRouter().StrictSlash(true)
 
 	mainRouter := router.PathPrefix("/api/v1/").Subrouter()
 
@@ -37,6 +38,7 @@ func (a *APIServer) Run() error {
 		w.Write([]byte("GET Request Received"))
 	}).Methods("GET")
 
+	authEndpoint.AddAuthSubRouter(mainRouter, a.db.Conn)
 	consumerEndpoint.AddConsumerSubRouter(mainRouter, a.db.Conn)
 
 	LogAvailableEndpoints(router)

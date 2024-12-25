@@ -6,18 +6,14 @@ import (
 
 	"github.com/TasosFrago/epms/db_connection"
 	"github.com/TasosFrago/epms/router"
+	"github.com/TasosFrago/epms/utls"
 
 	_ "github.com/gorilla/handlers"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if _, err := os.Stat("../.env"); err == nil {
-		err := godotenv.Load("../.env")
-		if err != nil {
-			log.Fatalf("Error loading environment vars: %s", err)
-		}
-	}
+	// Load Environment variables
+	utls.LoadEnv()
 
 	config := db_connection.CredentialConfig{
 		Usrname:    os.Getenv("USERNAME"),
