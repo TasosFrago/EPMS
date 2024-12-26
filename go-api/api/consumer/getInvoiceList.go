@@ -15,10 +15,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (h ConsumerHandler) GetMeterList(w http.ResponseWriter, r *http.Request) {
+func (h ConsumerHandler) GetInvoiceList(w http.ResponseWriter, r *http.Request) {
 	consumerDetails, ok := r.Context().Value(types.AuthDetailsKey).(types.AuthDetails)
 	if !ok || consumerDetails.Type != types.CONSUMER {
-		httpError.UnauthorizedError(w, "Get Meter List, unauthorized user.")
+		httpError.UnauthorizedError(w, "Get Invoice List, unauthorized user.")
 		return
 	}
 
@@ -28,19 +28,19 @@ func (h ConsumerHandler) GetMeterList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if consumerDetails.ID != user_id {
-		httpError.UnauthorizedError(w, "Get Meter List, unauthorized user.")
+		httpError.UnauthorizedError(w, "Get Invoice List, unauthorized user.")
 		return
 	}
 
-	meters, err := meterList(h.dbSession, r.Context(), user_id)
+	invoices, err := invoiceList(h.dbSession, r.Context(), user_id)
 	if err != nil {
-		httpError.InternalServerError(w, fmt.Sprintf("Get Meter List, failed to get meters:\n\t%v", err))
+		httpError.InternalServerError(w, fmt.Sprintf("Get Invoice List, failed to get invoices:\n\t%v", err))
 		return
 	}
 
-	jsonBytes, err := json.Marshal(meters)
+	jsonBytes, err := json.Marshal(invoices)
 	if err != nil {
-		httpError.InternalServerError(w, fmt.Sprintf("Get Meter List, failed to marshal json:\n\t%v", err))
+		httpError.InternalServerError(w, fmt.Sprintf("Get Invoice List, failed to marshal json:\n\t%v", err))
 		return
 	}
 
@@ -48,14 +48,14 @@ func (h ConsumerHandler) GetMeterList(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonBytes)
 }
 
-func meterList(dbSession *sql.DB, ctx context.Context, user_id int) ([]models.Meter, error) {
-	var meters []models.Meter
+func invoiceList(dbSession *sql.DB, ctx context.Context, user_id int) ([]models.Invoice, error) {
+	var invoices []models.Invoice
 	rows, err := dbSession.QueryContext(
 		ctx,
 		`
-		SELECT supply_id, status, address
-		FROM METER
-		WHERE owner = ?;`,
+		SELECT invoice_id, provider, current_cost, month, year
+		FROM INVOICE, PLAN
+		WHERE receiver = ? AND plan = plan_id;`,
 		user_id,
 	)
 
@@ -66,17 +66,19 @@ func meterList(dbSession *sql.DB, ctx context.Context, user_id int) ([]models.Me
 	defer rows.Close()
 
 	for rows.Next() {
-		var meter models.Meter
+		var invoice models.Invoice
 		err := rows.Scan(
-			&meter.ID,
-			&meter.Status,
-			&meter.Address,
+			&invoice.ID,
+			&invoice.Provider,
+			&invoice.CurrentCost,
+			&invoice.Month,
+			&invoice.Year,
 		)
 		if err != nil {
 			return nil, err
 		}
-		meters = append(meters, meter)
+		invoices = append(invoices, invoice)
 	}
 
-	return meters, nil
+	return invoices, nil
 }

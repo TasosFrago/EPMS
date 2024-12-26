@@ -7,7 +7,7 @@ type Meter struct {
 	KWH        *int   `json:"kWh,omitempty"`
 	Address    string `json:"address,omitempty"`
 	RatedPower string `json:"rated_power,omitempty"`
-	Owner      int `json:"owner,omitempty"`
+	Owner      int    `json:"owner,omitempty"`
 	Agent      *int64 `json:"agent,omitempty"`
 	Department string `json:"department,omitempty"`
 }

@@ -1,16 +1,16 @@
 package consumerEndpoint
 
 import (
-	"net/http"
-	"database/sql"
 	"context"
-	"fmt"
-	"strconv"
+	"database/sql"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"strconv"
 
-	"github.com/TasosFrago/epms/utls/types"
-	"github.com/TasosFrago/epms/utls/httpError"
 	"github.com/TasosFrago/epms/models"
+	"github.com/TasosFrago/epms/utls/httpError"
+	"github.com/TasosFrago/epms/utls/types"
 
 	"github.com/gorilla/mux"
 )
@@ -37,7 +37,7 @@ func (h ConsumerHandler) GetConsumerInfo(w http.ResponseWriter, r *http.Request)
 		httpError.InternalServerError(w, fmt.Sprintf("Get Consumer info, failed to get consumer:\n\t%v", err))
 		return
 	}
-	
+
 	jsonBytes, err := json.Marshal(consumer)
 	if err != nil {
 		httpError.InternalServerError(w, fmt.Sprintf("Get Consumer info, failed to marshal json:\n\t%v", err))
@@ -54,10 +54,10 @@ func consumerInfo(dbSession *sql.DB, ctx context.Context, user_id int) (models.C
 		ctx,
 		`SELECT first_name, last_name, email, cell, landline
 		FROM CONSUMER
-		WHERE user_id = ?;`, 
+		WHERE user_id = ?;`,
 		user_id,
 	)
-	
+
 	err := row.Scan(
 		&consumer.FirstName,
 		&consumer.LastName,

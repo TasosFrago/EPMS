@@ -40,6 +40,8 @@ func AddConsumerSubRouter(router *mux.Router, db *sql.DB) error {
 	privateRouter.HandleFunc("/{user_id}/", consHandl.GetConsumerInfo).Methods("GET")
 	privateRouter.HandleFunc("/{user_id}/meters/", consHandl.GetMeterList).Methods("GET")
 	privateRouter.HandleFunc("/{user_id}/meters/{supply_id}/", consHandl.GetMeterInfo).Methods("GET")
+	privateRouter.HandleFunc("/{user_id}/invoices/", consHandl.GetInvoiceList).Methods("GET")
+	privateRouter.HandleFunc("/{user_id}/invoices/{invoice_id}/", consHandl.GetInvoiceInfo).Methods("GET")
 	privateRouter.HandleFunc("/consumerd", consHandl.ProtectedConsumer).Methods("GET")
 
 	return nil

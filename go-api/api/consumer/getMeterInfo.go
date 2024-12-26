@@ -1,22 +1,22 @@
 package consumerEndpoint
 
 import (
-	"net/http"
-	"database/sql"
 	"context"
-	"fmt"
-	"errors"
-	"strconv"
+	"database/sql"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+	"strconv"
 
-	"github.com/TasosFrago/epms/utls/types"
-	"github.com/TasosFrago/epms/utls/httpError"
 	"github.com/TasosFrago/epms/models"
+	"github.com/TasosFrago/epms/utls/httpError"
+	"github.com/TasosFrago/epms/utls/types"
 
 	"github.com/gorilla/mux"
 )
 
-var	errUnauthorized = errors.New("unauthorized access")
+var errUnauthorized = errors.New("unauthorized access")
 
 func (h ConsumerHandler) GetMeterInfo(w http.ResponseWriter, r *http.Request) {
 	consumerDetails, ok := r.Context().Value(types.AuthDetailsKey).(types.AuthDetails)
