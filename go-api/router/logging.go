@@ -1,6 +1,8 @@
 package router
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -53,9 +55,16 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+type AvailableEndpoint struct {
+	Path    string   `json:"path"`
+	Methods []string `json:"methods"`
+}
+
 func LogAvailableEndpoints(router *mux.Router) {
+	var endpoints []AvailableEndpoint
 	bgCyan := color.New(color.BgCyan).SprintFunc()
 	color.Cyan("Available Endpoints:")
+
 	router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		pathTemplate, err := route.GetPathTemplate()
 		if err != nil {
@@ -65,7 +74,24 @@ func LogAvailableEndpoints(router *mux.Router) {
 		if len(methods) == 0 {
 			return nil
 		}
-		log.Printf("- %s [%s]", pathTemplate, bgCyan(" "+strings.Join(methods[:], "")+" "))
+		log.Printf("- %s [%s]", pathTemplate, bgCyan(" "+strings.Join(methods[:], ",")+" "))
+
+		endpoints = append(endpoints, AvailableEndpoint{
+			Path:    pathTemplate,
+			Methods: methods,
+		})
+
 		return nil
 	})
+
+	fmt.Println("\n\n[")
+	for _, endpoint := range endpoints {
+		jsonData, err := json.MarshalIndent(endpoint, "", "  ")
+		if err != nil {
+			fmt.Println("Error marshalling to JSON:", err)
+			continue
+		}
+		fmt.Println(string(jsonData) + ",")
+	}
+	fmt.Print("]\n\n")
 }

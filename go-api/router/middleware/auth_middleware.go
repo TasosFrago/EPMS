@@ -29,6 +29,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		authDetails := types.AuthDetails{
+			ID: claims.ID,
 			Email: claims.Email,
 			Type:  types.UsrType(claims.UsrType),
 		}

@@ -12,6 +12,7 @@ import (
 )
 
 type ConsumerLoginReqData struct {
+	ID int `json:"user_id"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -39,7 +40,7 @@ func (h AuthHandler) LogInConsumer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := security.CreateToken(loginData.Email, types.CONSUMER, nil)
+	token, err := security.CreateToken(consumerData.ID, loginData.Email, types.CONSUMER, nil)
 	if err != nil {
 		httpError.InternalServerError(w, "Login of consumer, couldn't create token")
 		return
@@ -47,7 +48,8 @@ func (h AuthHandler) LogInConsumer(w http.ResponseWriter, r *http.Request) {
 
 	httpError.StatusCreated(w, "Login successfull")
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"user_id": consumerData.ID,
 		"token": token,
 	})
 }
@@ -55,9 +57,9 @@ func (h AuthHandler) LogInConsumer(w http.ResponseWriter, r *http.Request) {
 func getConsumerByEmail(dbSession *sql.DB, email string) (ConsumerLoginReqData, error) {
 	var consumer ConsumerLoginReqData
 
-	row := dbSession.QueryRow("SELECT email, password FROM CONSUMER WHERE email = ?", email)
+	row := dbSession.QueryRow("SELECT user_id, email, password FROM CONSUMER WHERE email = ?", email)
 
-	err := row.Scan(&consumer.Email, &consumer.Password)
+	err := row.Scan(&consumer.ID, &consumer.Email, &consumer.Password)
 	if err != nil {
 		return ConsumerLoginReqData{}, err
 	}

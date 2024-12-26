@@ -24,6 +24,7 @@ To be expanded...
 
 **(POST)** `/auth/signup/consumer`
     · first_name, last_name, email, password, cell, landline
+
 	```json
 	// POST data
 	{

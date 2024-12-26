@@ -11,12 +11,13 @@ import (
 )
 
 type CustomJWTClaims struct {
+	ID int `json:"user_id"`
 	Email   string `json:"email"`
 	UsrType int    `json:"usrT"`
 	jwt.RegisteredClaims
 }
 
-func CreateToken(email string, usr types.UsrType, expirationTime *time.Time) (string, error) {
+func CreateToken(user_id int, email string, usr types.UsrType, expirationTime *time.Time) (string, error) {
 	jwtKey := os.Getenv("JWT_KEY")
 	if jwtKey == "" {
 		return "", fmt.Errorf("JWT_KEY env variable is not set")
@@ -30,6 +31,7 @@ func CreateToken(email string, usr types.UsrType, expirationTime *time.Time) (st
 	}
 
 	claims := CustomJWTClaims{
+		ID: user_id,
 		Email:   email,
 		UsrType: int(usr),
 		RegisteredClaims: jwt.RegisteredClaims{

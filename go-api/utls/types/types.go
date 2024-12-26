@@ -9,6 +9,7 @@ const (
 )
 
 type AuthDetails struct {
+	ID int
 	Email string
 	Type  UsrType
 }
