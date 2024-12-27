@@ -46,7 +46,7 @@ func (h ConsumerHandler) GetAvailablePlans(w http.ResponseWriter, r *http.Reques
 		if errors.Is(err, errUnauthorized) {
 			httpError.UnauthorizedError(w, "Get Available Plans, access denied to user")
 		} else if errors.Is(err, errNotAbleToChoose) {
-			httpError.ConflictError(w, "Get Available Plans, already committed to plan")
+			httpError.UnprocessableEntityError(w, "Get Available Plans, already committed to plan")
 		} else {
 			httpError.InternalServerError(w, fmt.Sprintf("Get Available Plans, failed to get plans:\n\t%v", err))
 		}
@@ -87,7 +87,7 @@ func planList(dbSession *sql.DB, ctx context.Context, user_id int, supply_id int
 	var current_plan models.Plan
 	row_plan := dbSession.QueryRowContext(
 		ctx,
-		`SELECT month, duration
+		`SELECT month, year, duration
 		FROM METER, PLAN
 		WHERE plan = plan_id AND supply_id = ?;`,
 		supply_id,

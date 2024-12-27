@@ -55,9 +55,14 @@ func BadRequestError(w http.ResponseWriter, errMsg string) {
 	httpResponse(w, http.StatusBadRequest, "Bad Request", errMsg)
 }
 
+func UnprocessableEntityError(w http.ResponseWriter, errMsg string) {
+	httpLogger(WARNING, errMsg)
+	httpResponse(w, http.StatusBadRequest, "", errMsg)
+}
+
 func StatusCreated(w http.ResponseWriter, errMsg string) {
 	httpLogger(SUCCESS, errMsg)
-	httpResponse(w, http.StatusCreated, "Created", errMsg)
+	httpResponse(w, http.StatusUnprocessableEntity, "Unprocessable Entity", errMsg)
 }
 
 func httpLogger(logType LogType, errMsg string) {
