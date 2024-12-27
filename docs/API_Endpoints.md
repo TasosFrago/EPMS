@@ -200,15 +200,15 @@ To be expanded...
 ### Pay specific invoice 
 
 **(POST)** `/consumer/{user_id}/invoices/{invoice_id}/pay`
-    - user_id, provider_name, supply_id, ammount, credit_info
+    - user_id, provider_name, supply_id, amount, credit_info
 
 ### Payment history 
 
 **(GET)** `/consumer/{user_id}/payments`
-    - user_id, (sorting) ──> payment_id, supply_id, provider, ammount
-    - user_id, supply_id, (sorting) ──> payment_id, provider, ammount
-    - user_id, provider, (sorting) ──> payment_id, supply_id, ammount
-    - user_id, provider, supply_id, (sorting) ──> payment_id, ammount
+    - user_id, (sorting) ──> payment_id, supply_id, provider, amount
+    - user_id, supply_id, (sorting) ──> payment_id, provider, amount
+    - user_id, provider, (sorting) ──> payment_id, supply_id, amount
+    - user_id, provider, supply_id, (sorting) ──> payment_id, amount
 	
 	```json
 	// GET data
@@ -336,9 +336,9 @@ To be expanded...
     · supply_id, receiver, provider, plan(month, year), current_cost, total
 
 ▶ List of payments (GET) /provider/name/payments
-    · name ──> payment_id, supply_id, user, ammount
-    · name, supply_id ──> payment_id, user, ammount
-    · name, user_id ──> payment_id, supply_id, ammount
+    · name ──> payment_id, supply_id, user, amount
+    · name, supply_id ──> payment_id, user, amount
+    · name, user_id ──> payment_id, supply_id, amount
 
 ## DEPARTMENT
 
