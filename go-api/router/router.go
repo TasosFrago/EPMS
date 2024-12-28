@@ -7,6 +7,8 @@ import (
 
 	"github.com/TasosFrago/epms/api/auth"
 	"github.com/TasosFrago/epms/api/consumer"
+	"github.com/TasosFrago/epms/api/invoice"
+	"github.com/TasosFrago/epms/api/meter"
 
 	"github.com/fatih/color"
 	"github.com/gorilla/mux"
@@ -39,7 +41,13 @@ func (a *APIServer) Run() error {
 	}).Methods("GET")
 
 	authEndpoint.AddAuthSubRouter(mainRouter, a.db.Conn)
-	consumerEndpoint.AddConsumerSubRouter(mainRouter, a.db.Conn)
+	consumerRouter := consumerEndpoint.AddConsumerSubRouter(mainRouter, a.db.Conn)
+	meterRouter := meterEndpoint.AddMeterSubRouter(consumerRouter, a.db.Conn)
+
+	invoiceEndpoint.AddInvoiceConsumerMeterSubRouter(consumerRouter, a.db.Conn)
+	invoiceEndpoint.AddInvoiceConsumerMeterSubRouter(meterRouter, a.db.Conn)
+
+	invoiceEndpoint.AddInvoiceSubRouter(consumerRouter, a.db.Conn)
 
 	LogAvailableEndpoints(router)
 

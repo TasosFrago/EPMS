@@ -1,4 +1,4 @@
-package consumerEndpoint
+package meterEndpoint
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/TasosFrago/epms/api"
 	"github.com/TasosFrago/epms/models"
 	"github.com/TasosFrago/epms/utls/httpError"
 	"github.com/TasosFrago/epms/utls/types"
@@ -16,9 +17,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var errUnauthorized = errors.New("unauthorized access")
-
-func (h ConsumerHandler) GetMeterInfo(w http.ResponseWriter, r *http.Request) {
+func (h MeterHandler) GetMeterInfo(w http.ResponseWriter, r *http.Request) {
 	consumerDetails, ok := r.Context().Value(types.AuthDetailsKey).(types.AuthDetails)
 	if !ok || consumerDetails.Type != types.CONSUMER {
 		httpError.UnauthorizedError(w, "Get Meter Info, unauthorized user.")
@@ -43,7 +42,7 @@ func (h ConsumerHandler) GetMeterInfo(w http.ResponseWriter, r *http.Request) {
 
 	meter, err := meterInfo(h.dbSession, r.Context(), user_id, supply_id)
 	if err != nil {
-		if errors.Is(err, errUnauthorized) {
+		if errors.Is(err, apiHelper.ErrUnauthorized) {
 			httpError.UnauthorizedError(w, "Get Meter Info, access denied to user")
 		} else {
 			httpError.InternalServerError(w, fmt.Sprintf("Get Meter Info, failed to get meter:\n\t%v", err))
@@ -85,7 +84,7 @@ func meterInfo(dbSession *sql.DB, ctx context.Context, user_id int, supply_id in
 	}
 
 	if meter.Owner != user_id {
-		return models.Meter{}, errUnauthorized
+		return models.Meter{}, apiHelper.ErrUnauthorized
 	}
 
 	return meter, nil

@@ -107,9 +107,10 @@ To be expanded...
     - supply_id
     - password
 
-### Available plans 
+### Available plans
 
-**(GET)** `/consumer/{user_id}/meters/{supply_id}/plans`
+Available plans for the current month
+**(GET)** `/plans/`
     - supply_id, plan, month ──> plan_id
 
 	```json

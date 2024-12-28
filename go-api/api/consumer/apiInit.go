@@ -2,14 +2,8 @@ package consumerEndpoint
 
 import (
 	"database/sql"
-	"encoding/json"
-	"fmt"
-	"net/http"
 
-	"github.com/TasosFrago/epms/models"
 	"github.com/TasosFrago/epms/router/middleware"
-	"github.com/TasosFrago/epms/utls/httpError"
-	"github.com/TasosFrago/epms/utls/types"
 
 	"github.com/gorilla/mux"
 )
@@ -24,57 +18,22 @@ func NewConsumerHandler(db *sql.DB) *ConsumerHandler {
 	}
 }
 
-func AddConsumerSubRouter(router *mux.Router, db *sql.DB) error {
+func AddConsumerSubRouter(router *mux.Router, db *sql.DB) *mux.Router {
 	// Define endpoints subrouter
-	subRouter := router.PathPrefix("/consumer").Subrouter()
+	subRouter := router.PathPrefix("/consumer/{user_id}").Subrouter()
 
 	consHandl := NewConsumerHandler(db)
-
-	// Define are endpoints for /consumer
-	subRouter.HandleFunc("/", consHandl.GetConsumer).Methods("GET")
 
 	privateRouter := subRouter.PathPrefix("/").Subrouter()
 	privateRouter.Use(middleware.AuthMiddleware)
 
 	// Defining Protected routes
-	privateRouter.HandleFunc("/{user_id}/", consHandl.GetConsumerInfo).Methods("GET")
-	privateRouter.HandleFunc("/{user_id}/meters/", consHandl.GetMeterList).Methods("GET")
-	privateRouter.HandleFunc("/{user_id}/meters/{supply_id}/", consHandl.GetMeterInfo).Methods("GET")
-	privateRouter.HandleFunc("/{user_id}/meters/{supply_id}/plans", consHandl.GetAvailablePlans).Methods("GET")
-	privateRouter.HandleFunc("/{user_id}/invoices/", consHandl.GetInvoiceList).Methods("GET")
-	privateRouter.HandleFunc("/{user_id}/invoices/{invoice_id}/", consHandl.GetInvoiceInfo).Methods("GET")
-	privateRouter.HandleFunc("/{user_id}/payments", consHandl.GetPaymentHistory).Methods("GET")
-	privateRouter.HandleFunc("/consumerd", consHandl.ProtectedConsumer).Methods("GET")
+	privateRouter.HandleFunc("/", consHandl.GetConsumerInfo).Methods("GET")
 
-	return nil
-}
+	// privateRouter.HandleFunc("/{user_id}/meters/{supply_id}/plans", consHandl.GetAvailablePlans).Methods("GET")
+	// TODO: Move available plans list under /plans. (Does not need to be a protected route)
 
-func (h ConsumerHandler) ProtectedConsumer(w http.ResponseWriter, r *http.Request) {
-	userDetails, ok := r.Context().Value(types.AuthDetailsKey).(types.AuthDetails)
-	if !ok {
-		httpError.UnauthorizedError(w, "Protected Route, could not get user details")
-		return
-	}
-	if userDetails.Type != types.CONSUMER {
-		httpError.UnauthorizedError(w, "Protected Route, could not get user details")
-		return
-	}
-	var consumer models.Consumer
+	privateRouter.HandleFunc("/payments", consHandl.GetPaymentHistory).Methods("GET")
 
-	row := h.dbSession.QueryRow("SELECT * FROM CONSUMER WHERE email = ?", userDetails.Email)
-
-	err := row.Scan(&consumer.ID, &consumer.FirstName, &consumer.LastName, &consumer.Email, &consumer.Password, &consumer.Cell, &consumer.Landline, &consumer.CreditInfo)
-	if err != nil {
-		httpError.InternalServerError(w, fmt.Sprintf("Protected Route, could not get user info from db:\n\t%v", err))
-		return
-	}
-
-	jsonBytes, err := json.Marshal(consumer)
-	if err != nil {
-		httpError.InternalServerError(w, fmt.Sprintf("Protected Route, could not get user info from db:\n\t%v", err))
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonBytes)
+	return subRouter
 }

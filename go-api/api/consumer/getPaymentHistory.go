@@ -53,7 +53,7 @@ func paymentHistory(dbSession *sql.DB, ctx context.Context, user_id int) ([]mode
 	rows, err := dbSession.QueryContext(
 		ctx,
 		`
-		SELECT payment_id, supply_id, provider, ammount
+		SELECT payment_id, supply_id, provider, amount
 		FROM PAYS
 		WHERE user = ?;`,
 		user_id,

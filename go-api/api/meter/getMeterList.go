@@ -1,4 +1,4 @@
-package consumerEndpoint
+package meterEndpoint
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (h ConsumerHandler) GetMeterList(w http.ResponseWriter, r *http.Request) {
+func (h MeterHandler) GetMeterList(w http.ResponseWriter, r *http.Request) {
 	consumerDetails, ok := r.Context().Value(types.AuthDetailsKey).(types.AuthDetails)
 	if !ok || consumerDetails.Type != types.CONSUMER {
 		httpError.UnauthorizedError(w, "Get Meter List, unauthorized user.")
@@ -49,7 +49,7 @@ func (h ConsumerHandler) GetMeterList(w http.ResponseWriter, r *http.Request) {
 }
 
 func meterList(dbSession *sql.DB, ctx context.Context, user_id int) ([]models.Meter, error) {
-	var meters []models.Meter
+	meters := []models.Meter{}
 	rows, err := dbSession.QueryContext(
 		ctx,
 		`

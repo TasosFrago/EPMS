@@ -39,7 +39,7 @@ func (h AuthHandler) SignUpCons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpError.StatusCreated(w, "create consumer successfully")
+	httpError.StatusCreated(w, "create consumer successfully", nil)
 }
 
 func createConsumer(dbSession *sql.DB, consumer models.Consumer) error {

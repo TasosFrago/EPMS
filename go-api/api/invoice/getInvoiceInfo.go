@@ -1,4 +1,4 @@
-package consumerEndpoint
+package invoiceEndpoint
 
 import (
 	"context"
@@ -9,14 +9,14 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/TasosFrago/epms/models"
+	"github.com/TasosFrago/epms/api"
 	"github.com/TasosFrago/epms/utls/httpError"
 	"github.com/TasosFrago/epms/utls/types"
 
 	"github.com/gorilla/mux"
 )
 
-func (h ConsumerHandler) GetInvoiceInfo(w http.ResponseWriter, r *http.Request) {
+func (h InvoiceHandler) GetInvoiceInfo(w http.ResponseWriter, r *http.Request) {
 	consumerDetails, ok := r.Context().Value(types.AuthDetailsKey).(types.AuthDetails)
 	if !ok || consumerDetails.Type != types.CONSUMER {
 		httpError.UnauthorizedError(w, "Get Invoice Info, unauthorized user.")
@@ -33,7 +33,7 @@ func (h ConsumerHandler) GetInvoiceInfo(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	invoice_id, err := strconv.Atoi(mux.Vars(r)["supply_id"])
+	invoice_id, err := strconv.Atoi(mux.Vars(r)["invoice_id"])
 	if err != nil {
 		httpError.InternalServerError(w, fmt.Sprintf("Get Invoice Info, failed to convert invoice_id string to int:\n\t%v", err))
 		return
@@ -41,7 +41,7 @@ func (h ConsumerHandler) GetInvoiceInfo(w http.ResponseWriter, r *http.Request) 
 
 	invoice, err := invoiceInfo(h.dbSession, r.Context(), user_id, invoice_id)
 	if err != nil {
-		if errors.Is(err, errUnauthorized) {
+		if errors.Is(err, apiHelper.ErrUnauthorized) {
 			httpError.UnauthorizedError(w, "Get Invoice Info, access denied to user")
 		} else {
 			httpError.InternalServerError(w, fmt.Sprintf("Get Invoice Info, failed to get invoice:\n\t%v", err))
@@ -59,14 +59,15 @@ func (h ConsumerHandler) GetInvoiceInfo(w http.ResponseWriter, r *http.Request) 
 	w.Write(jsonBytes)
 }
 
-func invoiceInfo(dbSession *sql.DB, ctx context.Context, user_id int, invoice_id int) (models.Invoice, error) {
-	var invoice models.Invoice
+func invoiceInfo(dbSession *sql.DB, ctx context.Context, user_id int, invoice_id int) (apiHelper.InvoicePayment, error) {
+	var invoice apiHelper.InvoicePayment
 	row := dbSession.QueryRowContext(
 		ctx,
-		`SELECT invoice_id, provider, meter, current_cost, total, name, month, year, receiver
-		FROM METER, PLAN
-		WHERE invoice_id = ? AND plan_id = plan;`,
+		`SELECT invoice_id, INVOICE.provider, meter, current_cost, total, name, month, year, receiver
+		FROM INVOICE, PLAN
+		WHERE invoice_id = ? AND plan_id = plan AND receiver = ?;`,
 		invoice_id,
+		user_id,
 	)
 
 	err := row.Scan(
@@ -75,17 +76,16 @@ func invoiceInfo(dbSession *sql.DB, ctx context.Context, user_id int, invoice_id
 		&invoice.Meter,
 		&invoice.CurrentCost,
 		&invoice.Total,
-		&invoice.PlanName,
+		&invoice.Name,
 		&invoice.Month,
 		&invoice.Year,
 		&invoice.Receiver,
 	)
-	if err != nil {
-		return models.Invoice{}, err
+	if err == sql.ErrNoRows {
+		return apiHelper.InvoicePayment{}, apiHelper.ErrUnauthorized
 	}
-
-	if invoice.Receiver != user_id {
-		return models.Invoice{}, errUnauthorized
+	if err != nil {
+		return apiHelper.InvoicePayment{}, err
 	}
 
 	return invoice, nil

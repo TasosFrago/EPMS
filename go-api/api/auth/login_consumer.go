@@ -12,7 +12,7 @@ import (
 )
 
 type ConsumerLoginReqData struct {
-	ID int `json:"user_id"`
+	ID       int    `json:"user_id"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -46,11 +46,10 @@ func (h AuthHandler) LogInConsumer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpError.StatusCreated(w, "Login successfull")
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	httpError.StatusCreated(w, "Login successfull", map[string]interface{}{
 		"user_id": consumerData.ID,
-		"token": token,
+		"token":   token,
 	})
 }
 

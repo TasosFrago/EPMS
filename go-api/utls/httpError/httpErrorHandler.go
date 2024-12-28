@@ -21,48 +21,49 @@ const (
 )
 
 type ErrorRes struct {
-	Code        int    `json:"code"`
-	Message     string `json:"msg"`
-	Info        string `json:"info,omitempty"`
-	Success     string `json:"success,omitempty"`
-	Redirection string `json:"redirection,omitempty"`
-	Warning     string `json:"warning,omitempty"`
-	Error       string `json:"error,omitempty"`
+	Code        int         `json:"code"`
+	Message     string      `json:"msg"`
+	Info        string      `json:"info,omitempty"`
+	Success     string      `json:"success,omitempty"`
+	Redirection string      `json:"redirection,omitempty"`
+	Warning     string      `json:"warning,omitempty"`
+	Error       string      `json:"error,omitempty"`
+	Data        interface{} `json:"data,omitempty"`
 }
 
 func InternalServerError(w http.ResponseWriter, errMsg string) {
 	httpLogger(ERROR, errMsg)
-	httpResponse(w, http.StatusInternalServerError, "Internal Server Error", errMsg)
+	httpResponse(w, http.StatusInternalServerError, "Internal Server Error", errMsg, nil)
 }
 
 func NotFoundError(w http.ResponseWriter, errMsg string) {
 	httpLogger(WARNING, errMsg)
-	httpResponse(w, http.StatusNotFound, "Not Found", errMsg)
+	httpResponse(w, http.StatusNotFound, "Not Found", errMsg, nil)
 }
 
 func UnauthorizedError(w http.ResponseWriter, errMsg string) {
 	httpLogger(WARNING, errMsg)
-	httpResponse(w, http.StatusUnauthorized, "Unauthorized", errMsg)
+	httpResponse(w, http.StatusUnauthorized, "Unauthorized", errMsg, nil)
 }
 
 func ConflictError(w http.ResponseWriter, errMsg string) {
 	httpLogger(WARNING, errMsg)
-	httpResponse(w, http.StatusConflict, "Conflict", errMsg)
+	httpResponse(w, http.StatusConflict, "Conflict", errMsg, nil)
 }
 
 func BadRequestError(w http.ResponseWriter, errMsg string) {
 	httpLogger(WARNING, errMsg)
-	httpResponse(w, http.StatusBadRequest, "Bad Request", errMsg)
+	httpResponse(w, http.StatusBadRequest, "Bad Request", errMsg, nil)
 }
 
 func UnprocessableEntityError(w http.ResponseWriter, errMsg string) {
 	httpLogger(WARNING, errMsg)
-	httpResponse(w, http.StatusBadRequest, "", errMsg)
+	httpResponse(w, http.StatusUnprocessableEntity, "Unprocessable Entity", errMsg, nil)
 }
 
-func StatusCreated(w http.ResponseWriter, errMsg string) {
+func StatusCreated(w http.ResponseWriter, errMsg string, data interface{}) {
 	httpLogger(SUCCESS, errMsg)
-	httpResponse(w, http.StatusUnprocessableEntity, "Unprocessable Entity", errMsg)
+	httpResponse(w, http.StatusCreated, "Created", errMsg, data)
 }
 
 func httpLogger(logType LogType, errMsg string) {
@@ -92,13 +93,14 @@ func httpLogger(logType LogType, errMsg string) {
 	)
 }
 
-func httpResponse(w http.ResponseWriter, statusCode int, message string, detailedMsg string) {
+func httpResponse(w http.ResponseWriter, statusCode int, message string, detailedMsg string, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 
 	res := ErrorRes{
 		Code:    statusCode,
 		Message: message,
+		Data:    data,
 	}
 	var logType LogType
 	if statusCode >= 100 && statusCode <= 199 {

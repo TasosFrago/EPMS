@@ -109,3 +109,18 @@ CREATE TABLE PAYS ( -- 8
 	foreign key (user) references CONSUMER(user_id),
 	foreign key (provider) references PROVIDER(name)
 );
+
+-- VIEW for calculating unpaid invoices
+CREATE VIEW INVOICE_PAYMENT_STATUS AS
+SELECT 
+    i.invoice_id,
+	i.receiver as consumer,
+    i.total AS invoice_total,
+    IFNULL(SUM(p.amount), 0) AS total_paid,
+    (IFNULL(SUM(p.amount), 0) >= i.total) AS is_paid
+FROM INVOICE i
+LEFT JOIN PAYS p
+ON
+    i.receiver = p.user AND i.provider = p.provider AND i.meter = p.supply_id
+GROUP BY i.invoice_id, i.total
+ORDER BY i.invoice_id;

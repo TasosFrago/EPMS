@@ -1,8 +1,6 @@
 package router
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -84,14 +82,14 @@ func LogAvailableEndpoints(router *mux.Router) {
 		return nil
 	})
 
-	fmt.Println("\n\n[")
-	for _, endpoint := range endpoints {
-		jsonData, err := json.MarshalIndent(endpoint, "", "  ")
-		if err != nil {
-			fmt.Println("Error marshalling to JSON:", err)
-			continue
-		}
-		fmt.Println(string(jsonData) + ",")
-	}
-	fmt.Print("]\n\n")
+	// fmt.Println("\n\n[")
+	// for _, endpoint := range endpoints {
+	// 	jsonData, err := json.MarshalIndent(endpoint, "", "  ")
+	// 	if err != nil {
+	// 		fmt.Println("Error marshalling to JSON:", err)
+	// 		continue
+	// 	}
+	// 	fmt.Println(string(jsonData) + ",")
+	// }
+	// fmt.Print("]\n\n")
 }

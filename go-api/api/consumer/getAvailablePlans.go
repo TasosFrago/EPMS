@@ -9,14 +9,13 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/TasosFrago/epms/api"
 	"github.com/TasosFrago/epms/models"
 	"github.com/TasosFrago/epms/utls/httpError"
 	"github.com/TasosFrago/epms/utls/types"
 
 	"github.com/gorilla/mux"
 )
-
-var errNotAbleToChoose = errors.New("already committed to plan")
 
 func (h ConsumerHandler) GetAvailablePlans(w http.ResponseWriter, r *http.Request) {
 	consumerDetails, ok := r.Context().Value(types.AuthDetailsKey).(types.AuthDetails)
@@ -43,9 +42,9 @@ func (h ConsumerHandler) GetAvailablePlans(w http.ResponseWriter, r *http.Reques
 
 	plans, err := planList(h.dbSession, r.Context(), user_id, supply_id)
 	if err != nil {
-		if errors.Is(err, errUnauthorized) {
+		if errors.Is(err, apiHelper.ErrUnauthorized) {
 			httpError.UnauthorizedError(w, "Get Available Plans, access denied to user")
-		} else if errors.Is(err, errNotAbleToChoose) {
+		} else if errors.Is(err, apiHelper.ErrNotAbleToChoose) {
 			httpError.UnprocessableEntityError(w, "Get Available Plans, already committed to plan")
 		} else {
 			httpError.InternalServerError(w, fmt.Sprintf("Get Available Plans, failed to get plans:\n\t%v", err))
@@ -79,9 +78,8 @@ func planList(dbSession *sql.DB, ctx context.Context, user_id int, supply_id int
 	if err_meter != nil {
 		return nil, err_meter
 	}
-
 	if meter.Owner != user_id {
-		return nil, errUnauthorized
+		return nil, apiHelper.ErrUnauthorized
 	}
 
 	var current_plan models.Plan
@@ -103,7 +101,7 @@ func planList(dbSession *sql.DB, ctx context.Context, user_id int, supply_id int
 	}
 
 	if (monthNumber(current_plan.Month, current_plan.Year) + current_plan.Duration) > monthNumber("November", 2024) {
-		return nil, errNotAbleToChoose
+		return nil, apiHelper.ErrNotAbleToChoose
 	}
 
 	var plans []models.Plan
