@@ -24,9 +24,9 @@
 	let errorMessage = $state('');
 	let showPopup = $state(false);
 
-	const handleSignUp = async () => {
+	const handleSignUp = async (): Promise<void> => {
 		const data = $formData;
-		console.log(data);
+		debugLog(data);
 		try {
 			const response = await fetch(apiUrl('/auth/signup/consumer'), {
 				method: 'POST',
@@ -75,7 +75,13 @@
 <div class="flex justify-center">
 	<div class="form-container">
 		<label for="name">First Name</label>
-		<input type="text" id="name" bind:value={$formData.first_name} placeholder="Enter your name" />
+		<input
+			type="text"
+			id="name"
+			bind:value={$formData.first_name}
+			placeholder="Enter your name"
+			required
+		/>
 
 		<label for="last_name">Last Name</label>
 		<input
@@ -83,6 +89,7 @@
 			id="last_name"
 			bind:value={$formData.last_name}
 			placeholder="Enter your last name"
+			required
 		/>
 
 		<label for="password" class="password-label">Password</label>
@@ -93,6 +100,7 @@
 				bind:value={$formData.password}
 				placeholder="Enter your password"
 				class="password-input"
+				required
 			/>
 			<button
 				type="button"
@@ -105,10 +113,22 @@
 		</div>
 
 		<label for="email">Email</label>
-		<input type="email" id="email" bind:value={$formData.email} placeholder="Enter your email" />
+		<input
+			type="email"
+			id="email"
+			bind:value={$formData.email}
+			placeholder="Enter your email"
+			required
+		/>
 
 		<label for="cell">Cell</label>
-		<input type="tel" id="cell" bind:value={$formData.cell} placeholder="Enter your number" />
+		<input
+			type="tel"
+			id="cell"
+			bind:value={$formData.cell}
+			placeholder="Enter your number"
+			required
+		/>
 
 		<label for="landline">Landline</label>
 		<input

@@ -17,6 +17,8 @@ export const settings: Settings = {
 	DEBUG: true,
 }
 
-export const debugLog = (text: string): void => {
-	console.log(text);
+export const debugLog = (...args: unknown[]): void => {
+	if (settings.DEBUG) {
+		console.log(...args);
+	}
 }
