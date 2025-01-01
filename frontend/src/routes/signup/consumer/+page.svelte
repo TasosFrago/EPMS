@@ -70,11 +70,11 @@
 	</div>
 </Modal>
 
-<h1 class="mx-auto my-5 text-center text-3xl font-bold">Sign Up As Consumer</h1>
+<h1 class="mx-auto mt-5 text-center text-3xl font-bold">Sign Up As Consumer</h1>
 
 <div class="flex justify-center">
-	<div class="form-container">
-		<label for="name">First Name</label>
+	<form onsubmit={handleSignUp} class="form-container bg-gray-200">
+		<label for="name" class="pl-1">First Name</label>
 		<input
 			type="text"
 			id="name"
@@ -83,7 +83,7 @@
 			required
 		/>
 
-		<label for="last_name">Last Name</label>
+		<label for="last_name" class="pl-1">Last Name</label>
 		<input
 			type="text"
 			id="last_name"
@@ -92,7 +92,16 @@
 			required
 		/>
 
-		<label for="password" class="password-label">Password</label>
+		<label for="email" class="pl-1">Email</label>
+		<input
+			type="email"
+			id="email"
+			bind:value={$formData.email}
+			placeholder="Enter your email"
+			required
+		/>
+
+		<label for="password" class="password-label pl-1">Password</label>
 		<div class="password-container">
 			<input
 				type={seePassword ? 'text' : 'password'}
@@ -112,16 +121,7 @@
 			</button>
 		</div>
 
-		<label for="email">Email</label>
-		<input
-			type="email"
-			id="email"
-			bind:value={$formData.email}
-			placeholder="Enter your email"
-			required
-		/>
-
-		<label for="cell">Cell</label>
+		<label for="cell" class="pl-1">Cell</label>
 		<input
 			type="tel"
 			id="cell"
@@ -130,7 +130,7 @@
 			required
 		/>
 
-		<label for="landline">Landline</label>
+		<label for="landline" class="pl-1">Landline</label>
 		<input
 			type="tel"
 			id="landline"
@@ -138,19 +138,25 @@
 			placeholder="Enter your landline"
 		/>
 
-		<button type="submit" onclick={handleSignUp}>Sign Up</button>
-	</div>
+		<button
+			type="submit"
+			aria-label="submit"
+			class="w-full rounded-md bg-blue-600 px-5 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+		>
+			Sign Up
+		</button>
+	</form>
 </div>
 
 <style>
 	.form-container {
-		max-width: 400px;
+		max-width: 28rem;
 		width: 90%;
 		margin: 3%;
-		padding: 16px;
+		padding: 2rem;
 		border: 1px solid #fdfcfc;
 		border-radius: 16px;
-		background: #d3d0d0;
+		/*background: #d3d0d0;*/
 	}
 
 	.password-container {
@@ -215,7 +221,6 @@
 	button {
 		width: 100%;
 		padding: 12px;
-		background-color: #007bff;
 		color: white;
 		border: none;
 		border-radius: 8px;

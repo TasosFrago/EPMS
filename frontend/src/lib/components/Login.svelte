@@ -56,35 +56,36 @@
 <h1 class="mx-auto my-5 text-center text-3xl font-bold">{title}</h1>
 
 <div
-	class="mt-10 flex min-h-full max-w-md flex-col justify-center px-6 py-12 sm:mx-auto sm:w-full sm:max-w-sm lg:px-8"
+	class="w-md mx-3 mt-10 flex min-h-full max-w-md flex-col justify-center rounded-2xl bg-gray-200 px-6 py-7 sm:mx-auto sm:w-full lg:px-8"
 >
-	<form onsubmit={handleSubmit} class="space-y-4">
-		<div class="mb-6">
-			<label for="email" class="block text-sm/6 font-medium text-gray-900">Email</label>
+	<form onsubmit={handleSubmit} class="">
+		<div class="mb-5">
+			<label for="email" class="block pl-1 font-bold text-gray-900">Email</label>
 			<input
 				type="email"
 				id="email"
 				placeholder="Enter your email"
 				bind:value={$data.email}
-				class="mt-2 w-full rounded-lg border border-gray-300 py-2 pl-3 outline-none focus:ring-indigo-600"
+				class="mt-2 w-full rounded-lg border border-black py-2 pl-3 outline-none focus:ring-indigo-600"
 				required
 			/>
 		</div>
-		<div class="relative mb-4">
-			<label for="password" class="mb-1 block text-sm font-medium text-gray-700">Password</label>
+		<div class="relative mb-5">
+			<label for="password" class="block pl-1 font-bold text-gray-900">Password</label>
 			<input
 				type={showPassword ? 'text' : 'password'}
 				id="password"
 				placeholder="Enter your password"
 				bind:value={$data.password}
-				class="mt-2 w-full rounded-lg border border-gray-300 py-2 pl-3 outline-none focus:ring-indigo-600"
+				class="mt-2 w-full rounded-lg border border-black py-2 pl-3 outline-none focus:ring-indigo-600"
 				required
 			/>
 			<button
 				type="button"
 				onclick={() => (showPassword = !showPassword)}
 				aria-label="toggle-password-visibility"
-				class="insert-y-0 absolute right-0 px-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+				class="absolute right-3 top-[3.3rem] -translate-y-1/2 transform text-gray-500
+				hover:text-gray-700 focus:outline-none"
 			>
 				{#if showPassword}
 					{@render EyeIconOFF()}
@@ -96,7 +97,7 @@
 
 		<button
 			type="submit"
-			class="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+			class="mt-5 w-full rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
 			aria-label="submit"
 		>
 			Login

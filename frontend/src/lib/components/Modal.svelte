@@ -19,13 +19,15 @@
 		<!-- Background opacity -->
 		<div class="modal-overlay fixed h-full w-full bg-gray-900 opacity-50"></div>
 
-		<div class="z-50 mx-auto overflow-y-auto rounded-lg bg-white shadow-xl lg:max-h-full lg:w-1/2">
+		<div
+			class="z-50 mx-auto overflow-y-auto rounded-lg bg-white shadow-xl lg:max-h-full lg:max-w-md"
+		>
 			<div class="head relative flex items-center bg-white px-8 py-5">
-				<div class="flex-grow">
+				<div class="mr-4 flex-grow">
 					{@render children?.()}
 				</div>
 				<button
-					class="absolute right-2 top-2 ml-auto rounded-full bg-gray-200 p-2 hover:bg-gray-300"
+					class="absolute right-2 top-2 ml-7 rounded-full bg-gray-200 p-2 hover:bg-gray-300"
 					onclick={() => {
 						show = false;
 					}}
