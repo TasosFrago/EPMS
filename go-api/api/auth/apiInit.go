@@ -3,6 +3,7 @@ package authEndpoint
 import (
 	"database/sql"
 
+	"github.com/TasosFrago/epms/router/middleware"
 	"github.com/gorilla/mux"
 )
 
@@ -25,6 +26,10 @@ func AddAuthSubRouter(router *mux.Router, db *sql.DB) error {
 	subRouter.HandleFunc("/login/consumer", authHandl.LogInConsumer).Methods("POST")
 	// subRouter.HandleFunc("/login/provider", authHandl.LogIn).Methods("POST")
 	// subRouter.HandleFunc("/login/employee", authHandl.LogIn).Methods("POST")
+
+	privateRouter := subRouter.PathPrefix("/").Subrouter()
+	privateRouter.Use(middleware.AuthMiddleware)
+	privateRouter.HandleFunc("/me", authHandl.GetUser).Methods("GET")
 
 	return nil
 }

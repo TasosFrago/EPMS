@@ -17,7 +17,7 @@ import (
 
 func (h MeterHandler) GetMeterList(w http.ResponseWriter, r *http.Request) {
 	consumerDetails, ok := r.Context().Value(types.AuthDetailsKey).(types.AuthDetails)
-	if !ok || consumerDetails.Type != types.CONSUMER {
+	if !ok && consumerDetails.Type != types.CONSUMER {
 		httpError.UnauthorizedError(w, "Get Meter List, unauthorized user.")
 		return
 	}

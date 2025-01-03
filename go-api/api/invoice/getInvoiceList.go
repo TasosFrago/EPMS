@@ -18,7 +18,7 @@ import (
 
 func (h InvoiceHandler) GetInvoiceList(w http.ResponseWriter, r *http.Request) {
 	consumerDetails, ok := r.Context().Value(types.AuthDetailsKey).(types.AuthDetails)
-	if !ok || consumerDetails.Type != types.CONSUMER {
+	if !ok && consumerDetails.Type != types.CONSUMER {
 		httpError.UnauthorizedError(w, "Get Invoice List, unauthorized user.")
 		return
 	}
@@ -65,8 +65,8 @@ func (h InvoiceHandler) GetInvoiceList(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonBytes)
 }
 
-func invoiceList(dbSession *sql.DB, ctx context.Context, user_id int, supply_id *int) ([]apiHelper.InvoicePayment, error) {
-	invoices := []apiHelper.InvoicePayment{}
+func invoiceList(dbSession *sql.DB, ctx context.Context, user_id int, supply_id *int) ([]apiHelper.InvoiceStatus, error) {
+	invoices := []apiHelper.InvoiceStatus{}
 
 	var (
 		rows *sql.Rows
@@ -76,19 +76,41 @@ func invoiceList(dbSession *sql.DB, ctx context.Context, user_id int, supply_id 
 		rows, err = dbSession.QueryContext(
 			ctx,
 			`
-			SELECT invoice_id, INVOICE.provider, current_cost, month, year
-			FROM INVOICE, PLAN
-			WHERE receiver = ? AND plan = plan_id;`,
+			SELECT
+				inv.invoice_id,
+				inv.provider,
+				inv.current_cost,
+				STR_TO_DATE(CONCAT('1-', month, '-', year), '%d-%M-%Y') AS issue_date,
+				LAST_DAY(STR_TO_DATE(CONCAT('1-', month, '-', year), '%d-%M-%Y')) AS expiry_date,
+				inp.is_paid
+			FROM INVOICE AS inv
+			JOIN INVOICE_PAYMENT_STATUS AS inp
+			ON inv.invoice_id = inp.invoice_id
+			JOIN PLAN
+			ON inv.plan = plan_id
+			WHERE inv.receiver = ? ;`,
 			user_id,
 		)
 	} else {
 		rows, err = dbSession.QueryContext(
 			ctx,
 			`
-			SELECT invoice_id, INVOICE.provider, current_cost, month, year
-			FROM INVOICE, PLAN
-			WHERE receiver = ? AND plan = plan_id;`,
+			SELECT
+				inv.invoice_id,
+				inv.provider,
+				inv.current_cost,
+				STR_TO_DATE(CONCAT('1-', month, '-', year), '%d-%M-%Y') AS issue_date,
+				LAST_DAY(STR_TO_DATE(CONCAT('1-', month, '-', year), '%d-%M-%Y')) AS expiry_date,
+				inp.is_paid
+			FROM INVOICE AS inv
+			JOIN INVOICE_PAYMENT_STATUS AS inp
+			ON inv.invoice_id = inp.invoice_id
+			JOIN PLAN
+			ON inv.plan = plan_id
+			WHERE inv.receiver = ? AND inv.meter = ?;
+			`,
 			user_id,
+			supply_id,
 		)
 	}
 	if err == sql.ErrNoRows && supply_id != nil {
@@ -102,13 +124,15 @@ func invoiceList(dbSession *sql.DB, ctx context.Context, user_id int, supply_id 
 	defer rows.Close()
 
 	for rows.Next() {
-		var invoice apiHelper.InvoicePayment
+		var invoice apiHelper.InvoiceStatus
+
 		err := rows.Scan(
 			&invoice.ID,
 			&invoice.Provider,
 			&invoice.CurrentCost,
-			&invoice.Month,
-			&invoice.Year,
+			&invoice.IssueDate,
+			&invoice.ExpiryDate,
+			&invoice.IsPaid,
 		)
 		if err != nil {
 			return nil, err

@@ -21,6 +21,15 @@ type InvoicePayment struct {
 	Duration int     `json:"duration,omitempty"`
 }
 
+type InvoiceStatus struct {
+	ID          int     `json:"invoice_id,omitempty"`
+	Provider    string  `json:"provider,omitempty"`
+	CurrentCost float32 `json:"current_cost,omitempty"`
+	IssueDate   string  `json:"issue_date,omitempty"`
+	ExpiryDate  string  `json:"expiry_date,omitempty"`
+	IsPaid      bool    `json:"is_paid,omitempty"`
+}
+
 var (
 	ErrUnauthorized    = errors.New("unauthorized access")
 	ErrNotAbleToChoose = errors.New("already committed to plan")
