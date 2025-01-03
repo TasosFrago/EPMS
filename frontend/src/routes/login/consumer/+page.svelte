@@ -4,7 +4,6 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import { apiUrl, debugLog } from '$lib/settings';
 	import { CookieManager, type CookieOptions } from '$lib';
-	import { redirect } from '@sveltejs/kit';
 
 	let data: Writable<LogInData> = writable({
 		email: '',
@@ -38,7 +37,7 @@
 					secure: true,
 					sameSite: 'Lax'
 				} as CookieOptions);
-				window.location.href = '/';
+				window.location.href = '/dashboard';
 			} else {
 				switch (response.status) {
 					case 401: // Unauthorized

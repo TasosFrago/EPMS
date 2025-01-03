@@ -80,6 +80,9 @@
 				class="mt-2 w-full rounded-lg border border-black py-2 pl-3 outline-none focus:ring-indigo-600"
 				required
 			/>
+			<!--
+				class="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+				-->
 			<button
 				type="button"
 				onclick={() => (showPassword = !showPassword)}
