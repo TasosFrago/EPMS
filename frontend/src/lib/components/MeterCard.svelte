@@ -5,11 +5,18 @@
 		date: string;
 		amount: string;
 		is_paid: boolean;
+		handleClick: () => void;
 	}
 </script>
 
 <script lang="ts">
-	let { supply_id, address, date, amount, is_paid }: MeterCardInfo = $props();
+	let { supply_id, address, date, amount, is_paid, handleClick }: MeterCardInfo = $props();
+
+	function OnClickF() {
+		if (!is_paid) {
+			handleClick();
+		}
+	}
 </script>
 
 {#snippet PowerIcon()}
@@ -59,6 +66,7 @@
 		<button
 			class="w-full items-center rounded-xl p-1 font-bold text-white"
 			style="background: {is_paid ? 'green' : 'black'}"
+			onclick={OnClickF}
 		>
 			{is_paid ? 'Paid' : 'Pay'}
 		</button>

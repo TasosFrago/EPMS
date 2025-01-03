@@ -16,7 +16,8 @@
 		address: '',
 		date: '',
 		amount: '',
-		is_paid: false
+		is_paid: false,
+		handleClick: () => {}
 	});
 </script>
 
@@ -37,5 +38,6 @@
 		date={meterCardInfo.date}
 		amount={meterCardInfo.amount}
 		is_paid={meterCardInfo.is_paid}
+		handleClick={meterCardInfo.handleClick}
 	/>
 </div>
