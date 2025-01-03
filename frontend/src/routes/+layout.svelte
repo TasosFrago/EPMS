@@ -3,9 +3,10 @@
 	import Popup from '$lib/components/Popup.svelte';
 	import { type PopupStoreT } from '$lib/stores';
 	import { PopupStatus } from '$lib/types';
-	import { setContext } from 'svelte';
+	import { onMount, setContext, type Snippet } from 'svelte';
+	import type { LayoutData } from './$types';
 
-	let { children } = $props();
+	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
 	let popup: PopupStoreT = $state({
 		show: false,
@@ -21,6 +22,14 @@
 		}, 5000);
 	}
 	setContext('popup', setPopup);
+
+	onMount(() => {
+		if (data.msg) {
+			popup.show = true;
+			popup.msg = data.msg;
+			popup.status = PopupStatus.ERROR;
+		}
+	});
 </script>
 
 <Popup show={popup.show} color={popup.status}>

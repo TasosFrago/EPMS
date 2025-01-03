@@ -1,12 +1,9 @@
 import type { LayoutServerLoad } from "./$types";
-import { error, redirect } from "@sveltejs/kit";
-//import { type Cookies } from "@sveltejs/kit";
+import { redirect } from "@sveltejs/kit";
 
-//import { popupStore } from "$lib/stores";
-import { apiUrl, debugLog } from "$lib/settings";
+import { apiUrl } from "$lib/settings";
 import { UnauthorizedUserError, InternalServerError } from "$lib/types";
 
-import { type Result, ErrorHandler } from "$lib/errorTypes";
 
 export interface UserData {
 	user_id: number;
@@ -14,16 +11,21 @@ export interface UserData {
 	last_name: string;
 }
 
-export const load: LayoutServerLoad = async ({ cookies }): Promise<{ loadData: Result<UserData, ErrorHandler> }> => {
-	//const msg: string = "You need to Log in";
+export const load: LayoutServerLoad = async ({ cookies }): Promise<{ loadData: UserData }> => {
 	let resUserData: UserData;
+	const msg = "You are not logged in. Please log in or sign up"
 
 	const token = cookies.get("jwt")
 	if (token == null) {
-		//popupStore.set(msg);
-		//redirect(307, "/");
+		cookies.set('errorMsg', msg, {
+			httpOnly: true,
+			secure: true,
+			maxAge: 60,
+			path: '/',
+		})
+		redirect(307, "/");
 		//error(400, "Empty cookies")
-		return { loadData: [null, ErrorHandler.REDIRECT] }
+		//return { loadData: [null, ErrorHandler.REDIRECT] }
 	}
 
 	try {
@@ -44,18 +46,24 @@ export const load: LayoutServerLoad = async ({ cookies }): Promise<{ loadData: R
 				first_name: await userDatad.first_name,
 				last_name: await userDatad.last_name
 			};
-			return { loadData: [resUserData, null] };
+			return { loadData: resUserData };
 		}
 	} catch (err) {
 		console.log("This is the error" + err);
+		cookies.set('errorMsg', msg, {
+			httpOnly: true,
+			secure: true,
+			maxAge: 60,
+			path: '/',
+		})
 		//popupStore.set(msg);
-		//redirect(307, "/");
+		redirect(307, "/");
 		//error(500, "Unexpected error");
-		return { loadData: [null, ErrorHandler.INTERNAL_SERVER_ERROR] }
+		//return { loadData: [null, ErrorHandler.INTERNAL_SERVER_ERROR] }
 	}
-	return { loadData: [null, ErrorHandler.INTERNAL_SERVER_ERROR] }
+	//return { loadData: [null, ErrorHandler.INTERNAL_SERVER_ERROR] }
 	//error(500, "Unexpected error");
-	//redirect(307, "/");
+	redirect(307, "/");
 }
 
 const getConsumerName = async (token: string, user_id: number) => {

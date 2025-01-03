@@ -2,9 +2,6 @@
 	import { type Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
 	import { type UserData } from './+layout.server';
-	import { goto } from '$app/navigation';
-	import { type Result, ErrorHandler } from '$lib/errorTypes';
-	import { browser } from '$app/environment';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 	let user: UserData = $state({
@@ -13,15 +10,21 @@
 		last_name: ''
 	});
 	let loading = $state(true);
-	const [loadData, err]: Result<UserData, ErrorHandler> = data.loadData;
-	if (loadData) user = loadData;
-	if (err != null) {
-		console.log(err);
-		if (browser) goto('/');
+
+	if (data) {
+		user = data.loadData;
+		loading = false;
 	}
-	$effect(() => {
-		if (!err) loading = false;
-	});
+
+	//const [loadData, err]: Result<UserData, ErrorHandler> = data.loadData;
+	//if (loadData) user = loadData;
+	//if (err != null) {
+	//	console.log(err);
+	//	if (browser) goto('/');
+	//}
+	//$effect(() => {
+	//	if (!err) loading = false;
+	//});
 </script>
 
 {#if loading}
