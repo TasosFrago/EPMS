@@ -1,7 +1,11 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
+	import { getContext, type Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
 	import { type UserData } from './+layout.server';
+	import type { PopupStoreT } from '$lib/stores';
+	import { PopupStatus } from '$lib/types';
+	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 	let user: UserData = $state({
@@ -11,9 +15,19 @@
 	});
 	let loading = $state(true);
 
-	if (data) {
+	console.log(data);
+	if (data && !data.error) {
 		user = data.loadData;
 		loading = false;
+	} else if (data.error) {
+		const setPopup: (p: PopupStoreT) => void = getContext('popup');
+		setPopup({
+			show: true,
+			msg: data.error.msg,
+			status: PopupStatus.ERROR
+		});
+		if (data.error.shouldRedirect && data.error.shouldRedirect.flag && browser)
+			goto(data.error.shouldRedirect.path);
 	}
 
 	//const [loadData, err]: Result<UserData, ErrorHandler> = data.loadData;

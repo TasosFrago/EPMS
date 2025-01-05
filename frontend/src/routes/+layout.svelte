@@ -3,8 +3,9 @@
 	import Popup from '$lib/components/Popup.svelte';
 	import { type PopupStoreT } from '$lib/stores';
 	import { PopupStatus } from '$lib/types';
-	import { onMount, setContext, type Snippet } from 'svelte';
+	import { onDestroy, onMount, setContext, type Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
+	import { goto, invalidateAll } from '$app/navigation';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
@@ -24,11 +25,25 @@
 	setContext('popup', setPopup);
 
 	onMount(() => {
-		if (data.msg) {
-			popup.show = true;
-			popup.msg = data.msg;
-			popup.status = PopupStatus.ERROR;
+		console.log(data);
+		if (data.error) {
+			console.log('We have error');
+			setPopup({
+				show: true,
+				msg: data.error.msg,
+				status: PopupStatus.ERROR
+			});
+			if (data.error.shouldRedirect && data.error.shouldRedirect.flag)
+				goto(data.error.shouldRedirect.path);
 		}
+
+		const handlePopState = () => {
+			invalidateAll();
+		};
+		window.addEventListener('popstate', handlePopState);
+		onDestroy(() => {
+			window.removeEventListener('popstate', handlePopState);
+		});
 	});
 </script>
 

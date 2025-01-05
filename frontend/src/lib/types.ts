@@ -1,32 +1,61 @@
-export class EmptyCookie extends Error {
+import { type HttpError } from "@sveltejs/kit";
 
-	constructor(message: string) {
-		super(message);
-		this.name = "Empty Cookie";
+
+export interface CustomHttpError extends HttpError {
+	shouldRedirect: {
+		flag: boolean,
+		path: string
+	}
+}
+
+export class EmptyCookie implements CustomHttpError {
+	status: number;
+	body: App.Error;
+	shouldRedirect: { flag: boolean, path: string }
+
+	constructor(message: string, shouldRedirect: { flag: boolean, path: string }) {
+		//super(message);
+		this.status = 401
+		this.body = {
+			message: message
+		}
+		this.shouldRedirect = shouldRedirect
+		//this.name = "Empty Cookie";
 
 		Object.setPrototypeOf(this, EmptyCookie.prototype);
 	}
 }
 
-export class UnauthorizedUserError extends Error {
-	public code: number;
+export class UnauthorizedUserError implements CustomHttpError {
+	public status: number;
+	body: App.Error;
+	shouldRedirect: { flag: boolean, path: string }
 
-	constructor(message: string, code: number) {
-		super(message);
-		this.name = "Unauthorized User";
-		this.code = code;
+	constructor(message: string, shouldRedirect: { flag: boolean, path: string }) {
+		//super(message);
+		//this.name = "Unauthorized User";
+		this.status = 401;
+		this.body = {
+			message: message
+		}
+		this.shouldRedirect = shouldRedirect
 
 		Object.setPrototypeOf(this, UnauthorizedUserError.prototype);
 	}
 }
 
-export class InternalServerError extends Error {
-	public code: number;
+export class InternalServerError implements CustomHttpError {
+	public status: number;
+	body: App.Error
+	shouldRedirect: { flag: boolean, path: string }
 
-	constructor(message: string, code: number) {
-		super(message);
-		this.name = "Internal Server Error";
-		this.code = code;
+	constructor(message: string, shouldRedirect: { flag: boolean, path: string }) {
+		//this.name = "Internal Server Error";
+		this.status = 500;
+		this.body = {
+			message: message
+		}
+		this.shouldRedirect = shouldRedirect
 
 		Object.setPrototypeOf(this, InternalServerError.prototype);
 	}

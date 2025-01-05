@@ -5,6 +5,14 @@ declare global {
 		// interface Error {}
 		interface Locals {
 			errorMsg: string | null
+			error: {
+				status: number;
+				msg: string;
+				shouldRedirect?: {
+					flag: boolean;
+					path: string;
+				}
+			}
 		}
 		// interface PageData {}
 		// interface PageState {}

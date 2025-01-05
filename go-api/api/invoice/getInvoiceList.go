@@ -25,7 +25,7 @@ func (h InvoiceHandler) GetInvoiceList(w http.ResponseWriter, r *http.Request) {
 
 	user_id, err := strconv.Atoi(mux.Vars(r)["user_id"])
 	if err != nil {
-		httpError.InternalServerError(w, fmt.Sprintf("Get Meter List, failed to convert string to int:\n\t%v", err))
+		httpError.InternalServerError(w, fmt.Sprintf("Get Invoice List, failed to convert string to int:\n\t%v", err))
 		return
 	}
 	if consumerDetails.ID != user_id {
@@ -40,7 +40,7 @@ func (h InvoiceHandler) GetInvoiceList(w http.ResponseWriter, r *http.Request) {
 		supply_id = new(int)
 		*supply_id, err = strconv.Atoi(supply_id_str)
 		if err != nil {
-			httpError.InternalServerError(w, fmt.Sprintf("Get Unpaid Invoice List, failed to convert string to int:\n\t%v", err))
+			httpError.InternalServerError(w, fmt.Sprintf("Get Invoice List, failed to convert string to int:\n\t%v", err))
 			return
 		}
 	}
@@ -79,7 +79,9 @@ func invoiceList(dbSession *sql.DB, ctx context.Context, user_id int, supply_id 
 			SELECT
 				inv.invoice_id,
 				inv.provider,
+				inv.meter,
 				inv.current_cost,
+				inp.total_paid,
 				STR_TO_DATE(CONCAT('1-', month, '-', year), '%d-%M-%Y') AS issue_date,
 				LAST_DAY(STR_TO_DATE(CONCAT('1-', month, '-', year), '%d-%M-%Y')) AS expiry_date,
 				inp.is_paid
@@ -98,7 +100,9 @@ func invoiceList(dbSession *sql.DB, ctx context.Context, user_id int, supply_id 
 			SELECT
 				inv.invoice_id,
 				inv.provider,
+				inv.meter,
 				inv.current_cost,
+				inp.total_paid,
 				STR_TO_DATE(CONCAT('1-', month, '-', year), '%d-%M-%Y') AS issue_date,
 				LAST_DAY(STR_TO_DATE(CONCAT('1-', month, '-', year), '%d-%M-%Y')) AS expiry_date,
 				inp.is_paid
@@ -129,7 +133,9 @@ func invoiceList(dbSession *sql.DB, ctx context.Context, user_id int, supply_id 
 		err := rows.Scan(
 			&invoice.ID,
 			&invoice.Provider,
+			&invoice.Meter,
 			&invoice.CurrentCost,
+			&invoice.TotalPaid,
 			&invoice.IssueDate,
 			&invoice.ExpiryDate,
 			&invoice.IsPaid,

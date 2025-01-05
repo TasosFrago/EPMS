@@ -22,12 +22,14 @@ type InvoicePayment struct {
 }
 
 type InvoiceStatus struct {
-	ID          int     `json:"invoice_id,omitempty"`
-	Provider    string  `json:"provider,omitempty"`
-	CurrentCost float32 `json:"current_cost,omitempty"`
-	IssueDate   string  `json:"issue_date,omitempty"`
-	ExpiryDate  string  `json:"expiry_date,omitempty"`
-	IsPaid      bool    `json:"is_paid,omitempty"`
+	ID          int      `json:"invoice_id,omitempty"`
+	Provider    string   `json:"provider,omitempty"`
+	Meter       *int     `json:"meter,omitempty"`
+	CurrentCost float32  `json:"current_cost,omitempty"`
+	TotalPaid   *float32 `json:"total_paid,omitempty"`
+	IssueDate   string   `json:"issue_date,omitempty"`
+	ExpiryDate  string   `json:"expiry_date,omitempty"`
+	IsPaid      bool     `json:"is_paid"`
 }
 
 var (
