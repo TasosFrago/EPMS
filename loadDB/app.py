@@ -60,7 +60,7 @@ class Config:
     usrname: str = field(default_factory=lambda: str(os.getenv("USERNAME")))
     passwd: str = field(default_factory=lambda: str(os.getenv("PASSWORD")))
     server_host: str = field(default_factory=lambda: str(os.getenv("HOST")))
-    server_port: int = field(default_factory=lambda: int(os.getenv("PORT", 22210)))
+    server_port: int = field(default_factory=lambda: int(os.getenv("SSH_PORT", 22210)))
     db_host: str = "127.0.0.1"
     db_name: str = "lab2425omada1_EPMS"
     db_port: int = 3306

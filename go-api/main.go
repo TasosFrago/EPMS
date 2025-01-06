@@ -20,7 +20,7 @@ func main() {
 		Usrname:    os.Getenv("USERNAME"),
 		Passwd:     os.Getenv("PASSWORD"),
 		ServerHost: os.Getenv("HOST"),
-		ServerPort: os.Getenv("PORT"),
+		ServerPort: os.Getenv("SSH_PORT"),
 		DBHost:     "localhost:3306",
 		DBName:     "lab2425omada1_EPMS",
 	}
@@ -32,7 +32,7 @@ func main() {
 
 	defer db.Cleanup()
 
-	address := fmt.Sprintf("0.0.0.0:%s", os.Getenv("API_PORT"))
+	address := fmt.Sprintf("0.0.0.0:%s", os.Getenv("PORT"))
 	api := router.NewServer(address, db.Conn)
 	if err := api.Run(); err != nil {
 		log.Fatalf("Error starting server: %v", err)
