@@ -60,7 +60,7 @@
 	};
 </script>
 
-<Modal show={showPopup}>
+<Modal show={showPopup} ShowHandler={() => (showPopup = false)}>
 	<div class=" text-center text-xl">
 		{errorMessage}
 	</div>

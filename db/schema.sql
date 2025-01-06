@@ -113,11 +113,11 @@ CREATE TABLE PAYS ( -- 8
 -- VIEW for calculating unpaid invoices
 CREATE VIEW INVOICE_PAYMENT_STATUS AS
 SELECT 
-    i.invoice_id,
+	i.invoice_id,
 	i.receiver as consumer,
-    i.total AS invoice_total,
-    IFNULL(SUM(p.amount), 0) AS total_paid,
-    (IFNULL(SUM(p.amount), 0) >= i.total) AS is_paid
+	i.total AS invoice_total,
+	IFNULL(SUM(p.amount), 0) AS total_paid,
+	(IFNULL(SUM(p.amount), 0) >= i.total) AS is_paid
 FROM INVOICE i
 LEFT JOIN PAYS p
 ON

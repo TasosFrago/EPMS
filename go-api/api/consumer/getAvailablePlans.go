@@ -100,7 +100,7 @@ func planList(dbSession *sql.DB, ctx context.Context, user_id int, supply_id int
 		return nil, err_plan
 	}
 
-	if (monthNumber(current_plan.Month, current_plan.Year) + current_plan.Duration) > monthNumber("November", 2024) {
+	if (monthNumber(*current_plan.Month, *current_plan.Year) + current_plan.Duration) > monthNumber("November", 2024) {
 		return nil, apiHelper.ErrNotAbleToChoose
 	}
 

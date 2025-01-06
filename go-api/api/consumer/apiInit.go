@@ -30,7 +30,7 @@ func AddConsumerSubRouter(router *mux.Router, db *sql.DB) *mux.Router {
 	// Defining Protected routes
 	privateRouter.HandleFunc("/", consHandl.GetConsumerInfo).Methods("GET")
 
-	// privateRouter.HandleFunc("/{user_id}/meters/{supply_id}/plans", consHandl.GetAvailablePlans).Methods("GET")
+	privateRouter.HandleFunc("/{user_id}/meters/{supply_id}/plans", consHandl.GetAvailablePlans).Methods("GET")
 	// TODO: Move available plans list under /plans. (Does not need to be a protected route)
 
 	privateRouter.HandleFunc("/payments", consHandl.GetPaymentHistory).Methods("GET")

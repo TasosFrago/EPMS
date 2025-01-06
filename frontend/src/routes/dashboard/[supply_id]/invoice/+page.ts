@@ -3,18 +3,27 @@ import { UnauthorizedUserError, InternalServerError } from '$lib/types';
 import type { PageServerLoad } from './$types';
 import type { Invoice } from '$lib/components/InvoiceList.svelte'
 
+export interface Provider {
+	name: string;
+	phone?: string;
+	email?: string;
+}
+
 export const load: PageServerLoad = async ({ data, params }) => {
-	console.log("Inside page Load")
 	const locals = await data.localsD;
-	console.log("locals not in server :" + JSON.stringify(locals, null, 2))
-	console.log("Url params: " + JSON.stringify(params, null, 2))
 	try {
 		if (locals.error) {
 			throw new UnauthorizedUserError("Unauthorized User", { flag: true, path: "/" })
 		}
 		if (locals.user && locals.token) {
 			const invoices: Invoice[] = await getInvoiceList(locals.token, locals.user.user_id, params.supply_id);
-			return { invoices: invoices }
+			const providers: Provider[] = await getProviders();
+
+			return {
+				invoices: invoices,
+				user_id: locals.user.user_id,
+				providers: providers
+			}
 
 		}
 	} catch (err) {
@@ -38,6 +47,18 @@ export const load: PageServerLoad = async ({ data, params }) => {
 	}
 }
 
+const getProviders = async (): Promise<Provider[]> => {
+	const response = await fetch(apiUrl("/providers/"), {
+		method: 'GET'
+	});
+	const data = await response.json()
+	if (response.ok) {
+		return data;
+	} else {
+		throw new InternalServerError(data.error, { flag: true, path: "/" })
+	}
+}
+
 const getInvoiceList = async (token: string, user_id: number, supply_id: number): Promise<Invoice[]> => {
 	console.log("User_id: " + user_id);
 	console.log("supply_id: " + supply_id);
@@ -52,6 +73,7 @@ const getInvoiceList = async (token: string, user_id: number, supply_id: number)
 		return data
 			.map(({
 				invoice_id,
+				provider,
 				issue_date,
 				expiry_date,
 				current_cost,
@@ -59,6 +81,7 @@ const getInvoiceList = async (token: string, user_id: number, supply_id: number)
 				is_paid
 			}: {
 				invoice_id: number;
+				provider: number
 				issue_date: string;
 				expiry_date: string;
 				current_cost: number;
@@ -67,6 +90,7 @@ const getInvoiceList = async (token: string, user_id: number, supply_id: number)
 			}) => {
 				return {
 					invoice_id: invoice_id.toString().padStart(6, '0'),
+					provider: provider,
 					issue_date: issue_date.replace(/-/g, '/'),
 					expiry_date: expiry_date.replace(/-/g, '/'),
 					current_cost: current_cost.toFixed(2).toString(),
