@@ -39,6 +39,7 @@ func main() {
 			DBHost:     "localhost:3306",
 			DBName:     "lab2425omada1_EPMS",
 		}
+		fmt.Println(config)
 
 		fmt.Println("Connecting to database via SSH tunnel...")
 		db, err := db_connection.ConnectDBoSSH(config)
