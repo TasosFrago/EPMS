@@ -20,7 +20,7 @@ func main() {
 	utls.LoadEnv()
 
 	address := fmt.Sprintf(":%s", os.Getenv("PORT"))
-	fmt.Printf("Server address %s", address)
+	fmt.Printf("Server address %s\n", address)
 
 	server := &http.Server{
 		Addr: address,
