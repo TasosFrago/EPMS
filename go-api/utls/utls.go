@@ -1,6 +1,7 @@
 package utls
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"regexp"
@@ -15,6 +16,7 @@ func LoadEnv() {
 			log.Fatalf("Error loading environment vars: %s", err)
 		}
 	}
+	fmt.Println("Loaded Environment vars...")
 }
 
 func IsValidEmail(email string) bool {

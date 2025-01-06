@@ -1,6 +1,8 @@
 
 .env
 
+app
+
 # Passwords file from loadDB
 passwd.txt
 

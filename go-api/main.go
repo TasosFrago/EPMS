@@ -14,6 +14,7 @@ import (
 
 func main() {
 	// Load Environment variables
+	fmt.Println("Starting app...")
 	utls.LoadEnv()
 
 	config := db_connection.CredentialConfig{
@@ -33,6 +34,7 @@ func main() {
 	defer db.Cleanup()
 
 	address := fmt.Sprintf(":%s", os.Getenv("PORT"))
+	fmt.Printf("Server address %s", address)
 	api := router.NewServer(address, db.Conn)
 	if err := api.Run(); err != nil {
 		log.Fatalf("Error starting server: %v", err)
