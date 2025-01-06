@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -31,7 +32,8 @@ func main() {
 
 	defer db.Cleanup()
 
-	api := router.NewServer("0.0.0.0:8080", db.Conn)
+	address := fmt.Sprintf("0.0.0.0:%s", os.Getenv("API_PORT"))
+	api := router.NewServer(address, db.Conn)
 	if err := api.Run(); err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}
