@@ -73,6 +73,7 @@ export const load: PageServerLoad = async ({ data }) => {
 			return { meterData: finalList };
 		}
 	} catch (err) {
+		console.log("HERE")
 		console.error(err)
 		if (locals.error) {
 			console.log("Inside layout dashboard " + locals.error.msg);
@@ -94,7 +95,9 @@ export const load: PageServerLoad = async ({ data }) => {
 }
 
 const getMeterList = async (token: string, user_id: number) => {
-	const response = await fetch(apiUrl("/consumer/" + user_id + "/meters/"), {
+	const urlToGo = `/consumer/${user_id}/meters/`
+	console.log(urlToGo)
+	const response = await fetch(apiUrl(urlToGo), {
 		method: 'GET',
 		headers: {
 			'Authorization': 'Bearer ' + token

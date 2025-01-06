@@ -13,7 +13,7 @@ interface Settings {
 }
 
 export const settings: Settings = {
-	API_URL: "http://localhost:8080/api/v1",
+	API_URL: "https://epms-kw8f.onrender.com/api/v1",
 	DEBUG: true,
 }
 
