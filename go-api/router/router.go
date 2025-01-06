@@ -9,6 +9,7 @@ import (
 	"github.com/TasosFrago/epms/api/consumer"
 	"github.com/TasosFrago/epms/api/invoice"
 	"github.com/TasosFrago/epms/api/meter"
+	"github.com/TasosFrago/epms/api/pays"
 	"github.com/TasosFrago/epms/api/plan"
 	"github.com/TasosFrago/epms/api/provider"
 
@@ -54,6 +55,8 @@ func (a *APIServer) Run() error {
 	planEndpoint.AddPlanSubRouter(mainRouter, a.db.Conn)
 
 	providerEndpoint.AddProviderHandler(mainRouter, a.db.Conn)
+
+	paysEndpoint.AddPaysSubRouter(mainRouter, a.db.Conn)
 
 	LogAvailableEndpoints(router)
 
