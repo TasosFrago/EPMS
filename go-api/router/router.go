@@ -15,6 +15,7 @@ import (
 	"github.com/TasosFrago/epms/api/provider"
 
 	"github.com/fatih/color"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -81,11 +82,18 @@ func (a *APIServer) Run() error {
 
 	paysEndpoint.AddPaysSubRouter(mainRouter, a.db.Conn)
 
+	// Configure CORS
+	corsHandler := handlers.CORS(
+		handlers.AllowedOrigins([]string{"http://localhost:5173", "https://epms-six.vercel.app/", "https://epms-tasosfragos-projects.vercel.app/", "https://epms-git-feature-fe-tasosfragos-projects.vercel.app/"}),
+		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}),
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+	)
+
 	LogAvailableEndpoints(router)
 
 	loggedRouter := LoggingMiddleware(router)
 
 	loggingColor := color.New(color.FgCyan).SprintFunc()
 	log.Printf("%s\n", loggingColor("Starting server on "+a.addr+"..."))
-	return http.ListenAndServe(a.addr, loggedRouter)
+	return http.ListenAndServe(a.addr, corsHandler(loggedRouter))
 }
