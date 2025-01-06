@@ -32,7 +32,7 @@ func main() {
 
 	defer db.Cleanup()
 
-	address := fmt.Sprintf("0.0.0.0:%s", os.Getenv("PORT"))
+	address := fmt.Sprintf(":%s", os.Getenv("PORT"))
 	api := router.NewServer(address, db.Conn)
 	if err := api.Run(); err != nil {
 		log.Fatalf("Error starting server: %v", err)
