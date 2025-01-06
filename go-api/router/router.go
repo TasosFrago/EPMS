@@ -2,6 +2,7 @@ package router
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -19,21 +20,43 @@ import (
 
 type APIServer struct {
 	addr string
-	db   DBStore
+	db   *DBStore
 }
 
 type DBStore struct {
 	Conn *sql.DB
 }
 
-func NewServer(addr string, db *sql.DB) *APIServer {
+func NewServer(addr string) *APIServer {
 	return &APIServer{
 		addr: addr,
-		db:   DBStore{db},
+		db:   nil,
 	}
+}
+func (a *APIServer) SetDB(db *sql.DB) {
+	a.db = &DBStore{db}
+}
+
+func (a *APIServer) RunWithTemporaryHandlers(server *http.Server) error {
+	router := mux.NewRouter().StrictSlash(true)
+
+	// Temporary health check route to say we're waiting for the DB
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Service is starting, waiting for DB connection..."))
+	}).Methods("GET")
+
+	server.Handler = router
+
+	// Start the server immediately
+	fmt.Printf("Listening on %s...\n", a.addr)
+	return server.ListenAndServe()
 }
 
 func (a *APIServer) Run() error {
+	if a.db == nil || a.db.Conn == nil {
+		log.Fatal("Database connection is not set")
+	}
 	router := mux.NewRouter().StrictSlash(true)
 
 	mainRouter := router.PathPrefix("/api/v1/").Subrouter()
