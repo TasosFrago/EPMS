@@ -104,7 +104,7 @@ func (a *APIServer) Run() error {
 }
 
 func SetOptions(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Handling options")
+	log.Printf("Received OPTIONS request for: %s", r.URL.Path)
 	origin := r.Header.Get("Origin")
 	log.Printf("Received OPTIONS request from origin: %s", origin)
 
