@@ -88,9 +88,10 @@ func (a *APIServer) Run() error {
 	corsHandler := handlers.CORS(
 		handlers.AllowedOrigins([]string{"http://localhost:5173", "https://epms-six.vercel.app/", "https://epms-tasosfragos-projects.vercel.app/", "https://epms-git-feature-fe-tasosfragos-projects.vercel.app/"}),
 		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}),
-		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+		handlers.AllowedHeaders([]string{"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token", "Authorization"}),
 		handlers.AllowCredentials(),
 	)
+	// corsHandler := handlers.CORS()
 
 	LogAvailableEndpoints(router)
 
@@ -102,6 +103,7 @@ func (a *APIServer) Run() error {
 }
 
 func SetOptions(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Handling options")
 	origin := r.Header.Get("Origin")
 	log.Printf("Received OPTIONS request from origin: %s", origin)
 
