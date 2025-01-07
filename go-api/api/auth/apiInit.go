@@ -22,8 +22,8 @@ func AddAuthSubRouter(router *mux.Router, db *sql.DB) error {
 
 	authHandl := NewAuthHandler(db)
 
-	subRouter.HandleFunc("/signup/consumer", authHandl.SignUpCons).Methods("POST", "OPTIONS")
-	subRouter.HandleFunc("/login/consumer", authHandl.LogInConsumer).Methods("POST", "OPTIONS")
+	subRouter.HandleFunc("/signup/consumer", authHandl.SignUpCons).Methods("POST")
+	subRouter.HandleFunc("/login/consumer", authHandl.LogInConsumer).Methods("POST")
 	// subRouter.HandleFunc("/login/provider", authHandl.LogIn).Methods("POST")
 	// subRouter.HandleFunc("/login/employee", authHandl.LogIn).Methods("POST")
 
