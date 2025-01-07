@@ -15,8 +15,8 @@ import (
 	"github.com/TasosFrago/epms/api/provider"
 
 	"github.com/fatih/color"
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 type APIServer struct {
@@ -60,17 +60,16 @@ func (a *APIServer) Run() error {
 	}
 
 	// Configure CORS
-	corsHandler := handlers.CORS(
-		handlers.AllowCredentials(),
-		handlers.AllowedOrigins([]string{"http://localhost:5173", "https://epms-six.vercel.app/", "https://epms-tasosfragos-projects.vercel.app/", "https://epms-git-feature-fe-tasosfragos-projects.vercel.app/"}),
-		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}),
-		handlers.AllowedHeaders([]string{"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token", "Authorization"}),
-		handlers.MaxAge(3600),
-	)
+	cor := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173", "https://epms-six.vercel.app/", "https://epms-tasosfragos-projects.vercel.app/", "https://epms-git-feature-fe-tasosfragos-projects.vercel.app/"},
+		AllowCredentials: true,
+		Debug:            true,
+		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
+		AllowedHeaders:   []string{"*"},
+		MaxAge:           3600,
+	})
 
 	router := mux.NewRouter().StrictSlash(true)
-
-	router.PathPrefix("/").Methods("OPTIONS").HandlerFunc(SetOptions)
 
 	mainRouter := router.PathPrefix("/api/v1/").Subrouter()
 
@@ -94,53 +93,11 @@ func (a *APIServer) Run() error {
 
 	paysEndpoint.AddPaysSubRouter(mainRouter, a.db.Conn)
 
-	// corsHandler := handlers.CORS()
-
 	LogAvailableEndpoints(router)
 
-	loggedRouter := corsHandler(LoggingMiddleware(router))
+	handler := cor.Handler(LoggingMiddleware(router))
 
 	loggingColor := color.New(color.FgCyan).SprintFunc()
 	log.Printf("%s\n", loggingColor("Starting server on "+a.addr+"..."))
-	return http.ListenAndServe(a.addr, loggedRouter)
-}
-
-func SetOptions(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Received OPTIONS request for: %s", r.URL.Path)
-	origin := r.Header.Get("Origin")
-	log.Printf("Received OPTIONS request from origin: %s", origin)
-
-	if origin == "" {
-		origin = "*"
-	}
-
-	// Allowed origins for credentials
-	allowedOrigins := []string{
-		"http://localhost:5173",
-		"https://epms-six.vercel.app",
-		"https://epms-tasosfragos-projects.vercel.app",
-		"https://epms-git-feature-fe-tasosfragos-projects.vercel.app",
-	}
-
-	// Check if the origin matches an allowed one
-	matched := false
-	for _, allowedOrigin := range allowedOrigins {
-		if origin == allowedOrigin {
-			matched = true
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-			break
-		}
-	}
-
-	// If no match, set default allowed origin
-	if !matched {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
-	}
-
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-
-	log.Printf("CORS Headers set: %+v", w.Header()) // Log the CORS headers
-	w.WriteHeader(http.StatusNoContent)             // Respond with 204 No Content
+	return http.ListenAndServe(a.addr, handler)
 }
