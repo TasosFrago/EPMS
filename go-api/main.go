@@ -10,8 +10,6 @@ import (
 	"github.com/TasosFrago/epms/db_connection"
 	"github.com/TasosFrago/epms/router"
 	"github.com/TasosFrago/epms/utls"
-
-	_ "github.com/gorilla/handlers"
 )
 
 func main() {
