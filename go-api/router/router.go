@@ -62,18 +62,7 @@ func (a *APIServer) Run() error {
 
 	mainRouter := router.PathPrefix("/api/v1/").Subrouter()
 
-	mainRouter.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		origin := r.Header.Get("Origin")
-		if origin == "" {
-			origin = "*" // Fallback if no origin is provided
-		}
-
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.WriteHeader(http.StatusNoContent) // ✅ Correct response for OPTIONS requests
-	})
+	mainRouter.Methods("OPTIONS").HandlerFunc(SetOptions)
 
 	mainRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -110,4 +99,43 @@ func (a *APIServer) Run() error {
 	loggingColor := color.New(color.FgCyan).SprintFunc()
 	log.Printf("%s\n", loggingColor("Starting server on "+a.addr+"..."))
 	return http.ListenAndServe(a.addr, corsHandler(loggedRouter))
+}
+
+func SetOptions(w http.ResponseWriter, r *http.Request) {
+	origin := r.Header.Get("Origin")
+	log.Printf("Received OPTIONS request from origin: %s", origin)
+
+	if origin == "" {
+		origin = "*"
+	}
+
+	// Allowed origins for credentials
+	allowedOrigins := []string{
+		"http://localhost:5173",
+		"https://epms-six.vercel.app",
+		"https://epms-tasosfragos-projects.vercel.app",
+		"https://epms-git-feature-fe-tasosfragos-projects.vercel.app",
+	}
+
+	// Check if the origin matches an allowed one
+	matched := false
+	for _, allowedOrigin := range allowedOrigins {
+		if origin == allowedOrigin {
+			matched = true
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			break
+		}
+	}
+
+	// If no match, set default allowed origin
+	if !matched {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+	}
+
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+	log.Printf("CORS Headers set: %+v", w.Header()) // Log the CORS headers
+	w.WriteHeader(http.StatusNoContent)             // Respond with 204 No Content
 }
