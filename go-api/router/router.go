@@ -58,16 +58,26 @@ func (a *APIServer) Run() error {
 	if a.db == nil || a.db.Conn == nil {
 		log.Fatal("Database connection is not set")
 	}
+
+	// Configure CORS
+	corsHandler := handlers.CORS(
+		handlers.AllowCredentials(),
+		handlers.AllowedOrigins([]string{"http://localhost:5173", "https://epms-six.vercel.app/", "https://epms-tasosfragos-projects.vercel.app/", "https://epms-git-feature-fe-tasosfragos-projects.vercel.app/"}),
+		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}),
+		handlers.AllowedHeaders([]string{"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token", "Authorization"}),
+		handlers.MaxAge(3600),
+	)
+
 	router := mux.NewRouter().StrictSlash(true)
 
-	mainRouter := router.PathPrefix("/api/v1/").Subrouter()
+	router.PathPrefix("/").Methods("OPTIONS").HandlerFunc(SetOptions)
 
-	mainRouter.Methods("OPTIONS").HandlerFunc(SetOptions)
+	mainRouter := router.PathPrefix("/api/v1/").Subrouter()
 
 	mainRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("GET Request Received"))
-	}).Methods("GET")
+	}).Methods("OPTIONS")
 
 	authEndpoint.AddAuthSubRouter(mainRouter, a.db.Conn)
 	consumerRouter := consumerEndpoint.AddConsumerSubRouter(mainRouter, a.db.Conn)
@@ -84,23 +94,15 @@ func (a *APIServer) Run() error {
 
 	paysEndpoint.AddPaysSubRouter(mainRouter, a.db.Conn)
 
-	// Configure CORS
-	corsHandler := handlers.CORS(
-		handlers.AllowedOrigins([]string{"http://localhost:5173", "https://epms-six.vercel.app/", "https://epms-tasosfragos-projects.vercel.app/", "https://epms-git-feature-fe-tasosfragos-projects.vercel.app/"}),
-		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}),
-		handlers.AllowedHeaders([]string{"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token", "Authorization"}),
-		handlers.AllowCredentials(),
-	)
-
 	// corsHandler := handlers.CORS()
 
 	LogAvailableEndpoints(router)
 
-	loggedRouter := LoggingMiddleware(router)
+	loggedRouter := corsHandler(LoggingMiddleware(router))
 
 	loggingColor := color.New(color.FgCyan).SprintFunc()
 	log.Printf("%s\n", loggingColor("Starting server on "+a.addr+"..."))
-	return http.ListenAndServe(a.addr, corsHandler(loggedRouter))
+	return http.ListenAndServe(a.addr, loggedRouter)
 }
 
 func SetOptions(w http.ResponseWriter, r *http.Request) {

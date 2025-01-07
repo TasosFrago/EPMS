@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -13,6 +14,13 @@ import (
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		if r.Method == "OPTIONS" {
+			log.Println("Skipping authentication for OPTION request.")
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
 		tokenString := r.Header.Get("Authorization")
 		if tokenString == "" {
 			httpError.UnauthorizedError(w, "Unauthorized user, no token passed.")
@@ -29,7 +37,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		authDetails := types.AuthDetails{
-			ID: claims.ID,
+			ID:    claims.ID,
 			Email: claims.Email,
 			Type:  types.UsrType(claims.UsrType),
 		}
@@ -38,3 +46,4 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+

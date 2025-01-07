@@ -50,6 +50,7 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 			statusColor(" "+http.StatusText(rec.status)+" "),
 			duration,
 		)
+		log.Printf("Headers: %+v", r.Header)
 	})
 }
 
