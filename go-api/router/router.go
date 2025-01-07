@@ -63,11 +63,16 @@ func (a *APIServer) Run() error {
 	mainRouter := router.PathPrefix("/api/v1/").Subrouter()
 
 	mainRouter.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		origin := r.Header.Get("Origin")
+		if origin == "" {
+			origin = "*" // Fallback if no origin is provided
+		}
+
+		w.Header().Set("Access-Control-Allow-Origin", origin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(http.StatusNoContent) // ✅ Correct response for OPTIONS requests
 	})
 
 	mainRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
