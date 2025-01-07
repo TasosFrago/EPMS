@@ -61,7 +61,7 @@ func (a *APIServer) Run() error {
 
 	// Configure CORS
 	cor := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173", "https://epms-six.vercel.app/", "https://epms-tasosfragos-projects.vercel.app/", "https://epms-git-feature-fe-tasosfragos-projects.vercel.app/"},
+		AllowedOrigins:   []string{"http://localhost:5173", "https://epms-six.vercel.app", "https://epms-tasosfragos-projects.vercel.app", "https://epms-git-feature-fe-tasosfragos-projects.vercel.app"},
 		AllowCredentials: true,
 		Debug:            true,
 		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
