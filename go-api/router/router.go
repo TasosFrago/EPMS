@@ -91,6 +91,7 @@ func (a *APIServer) Run() error {
 		handlers.AllowedHeaders([]string{"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token", "Authorization"}),
 		handlers.AllowCredentials(),
 	)
+
 	// corsHandler := handlers.CORS()
 
 	LogAvailableEndpoints(router)
