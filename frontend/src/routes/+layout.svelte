@@ -7,6 +7,11 @@
 	import type { LayoutData } from './$types';
 	import { goto, invalidateAll } from '$app/navigation';
 
+	import { dev } from '$app/environment';
+	import { injectAnalytics } from '@vercel/analytics/sveltekit';
+
+	injectAnalytics({ mode: dev ? 'development' : 'production' });
+
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
 	let popup: PopupStoreT = $state({
