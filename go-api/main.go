@@ -51,7 +51,7 @@ func main() {
 	api := router.NewServer(address)
 	go func() {
 		if err := api.RunWithTemporaryHandlers(server); err != nil {
-			log.Printf("Error starting server: %v", err)
+			log.Println("Info: Stopping temporary http server.")
 		}
 	}()
 

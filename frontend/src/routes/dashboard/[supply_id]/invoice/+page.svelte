@@ -52,8 +52,9 @@
 	};
 
 	const paymentClick = (current_cost: number, providerName: string) => {
-		console.log('Provider' + providerName);
-		selectedProvider = { name: providerName };
+		$formData.providerName = providerName;
+		$formData.amount = current_cost;
+		console.log('Provider ' + $formData);
 	};
 
 	interface PaymentData {
@@ -62,7 +63,7 @@
 	}
 	const formData: Writable<PaymentData> = writable({
 		providerName: '',
-		amount: 0
+		amount: 1
 	});
 
 	interface InvoiceDetails {
@@ -82,6 +83,7 @@
 
 	const SubmitPayment = async () => {
 		const formD = $formData;
+		console.log(formD);
 	};
 
 	const getInvoice = async (user_id: number, invoice_id: number) => {
@@ -246,6 +248,8 @@
 									class="mx-2 mt-1 h-8 w-20 rounded-lg"
 									type="number"
 									bind:value={$formData.amount}
+									min="1"
+									defaultvalue="1"
 									required
 								/>
 								<span>€</span>
@@ -257,13 +261,20 @@
 
 							<select
 								class="mr-5 flex h-8 appearance-none items-center rounded-lg text-left align-top leading-4 lg:mr-10"
-								bind:value={selectedProvider}
+								bind:value={$formData.providerName}
+								required
 							>
 								{#if data.providers}
 									{#each data.providers as provider}
-										<option class="mb-5 h-6 text-center text-sm" value={provider}>
-											{provider.name}
-										</option>
+										{#if provider.name == $formData.providerName}
+											<option class="mb-5 h-6 text-center text-sm" value={provider} selected>
+												{provider.name}
+											</option>
+										{:else}
+											<option class="mb-5 h-6 text-center text-sm" value={provider}>
+												{provider.name}
+											</option>
+										{/if}
 									{/each}
 								{/if}
 							</select>

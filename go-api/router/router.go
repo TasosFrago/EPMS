@@ -2,6 +2,7 @@ package router
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -63,7 +64,7 @@ func (a *APIServer) Run() error {
 	cor := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173", "https://epms-six.vercel.app", "https://epms-tasosfragos-projects.vercel.app", "https://epms-git-feature-fe-tasosfragos-projects.vercel.app"},
 		AllowCredentials: true,
-		Debug:            true,
+		Debug:            false,
 		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
 		AllowedHeaders:   []string{"*"},
 		MaxAge:           3600,
@@ -73,14 +74,21 @@ func (a *APIServer) Run() error {
 
 	mainRouter := router.PathPrefix("/api/v1/").Subrouter()
 
-	mainRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mainRouter.HandleFunc("/keep-alive/one", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("GET Request Received"))
-	}).Methods("OPTIONS")
+		json.NewEncoder(w).Encode(map[string]string{"message": "API pinged 1"})
+	})
+	mainRouter.HandleFunc("/keep-alive/two", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{"message": "API pinged 2"})
+	})
 
 	authEndpoint.AddAuthSubRouter(mainRouter, a.db.Conn)
 	consumerRouter := consumerEndpoint.AddConsumerSubRouter(mainRouter, a.db.Conn)
 	meterRouter := meterEndpoint.AddMeterSubRouter(consumerRouter, a.db.Conn)
+	paysEndpoint.AddPaysSubRouter(mainRouter, a.db.Conn)
 
 	invoiceEndpoint.AddInvoiceConsumerMeterSubRouter(consumerRouter, a.db.Conn)
 	invoiceEndpoint.AddInvoiceConsumerMeterSubRouter(meterRouter, a.db.Conn)
@@ -90,8 +98,6 @@ func (a *APIServer) Run() error {
 	planEndpoint.AddPlanSubRouter(mainRouter, a.db.Conn)
 
 	providerEndpoint.AddProviderHandler(mainRouter, a.db.Conn)
-
-	paysEndpoint.AddPaysSubRouter(mainRouter, a.db.Conn)
 
 	LogAvailableEndpoints(router)
 
