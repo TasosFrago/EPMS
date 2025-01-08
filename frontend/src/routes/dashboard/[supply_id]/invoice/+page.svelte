@@ -200,7 +200,7 @@
 	<h1>Loading...</h1>
 {:else}
 	<div class="flex flex-col overflow-y-auto">
-		<div class="mt-28 flex flex-col p-3 md:flex-row">
+		<div class=" mt-28 flex flex-col p-3 md:flex-row">
 			<div class="w-full">
 				<div class=" flex flex-row items-center">
 					<button
@@ -222,7 +222,7 @@
 
 				<hr class="my-2 mr-1 border-t-[1.5px] border-black" />
 
-				<div class="overflow-x-auto p-2">
+				<div class="overflow-x-scroll p-2 md:overflow-x-hidden">
 					<InvoiceList {invoiceList} {handleClick} {paymentClick} />
 				</div>
 			</div>
