@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/TasosFrago/epms/models"
 	"github.com/TasosFrago/epms/router/middleware"
 	"github.com/TasosFrago/epms/utls/httpError"
 	"github.com/TasosFrago/epms/utls/types"
@@ -41,6 +40,13 @@ func AddPaysSubRouter(router *mux.Router, db *sql.DB) *mux.Router {
 	return subRouter
 }
 
+type PayData struct {
+	User     int     `json:"user,omitempty"`
+	Provider string  `json:"provider,omitempty"`
+	SupplyID int64   `json:"supply_id,omitempty"`
+	Amount   float32 `json:"amount,omitempty"`
+}
+
 func (h PaysHandler) PayProvider(w http.ResponseWriter, r *http.Request) {
 	consumerDetails, ok := r.Context().Value(types.AuthDetailsKey).(types.AuthDetails)
 	if !ok && consumerDetails.Type != types.CONSUMER {
@@ -64,24 +70,29 @@ func (h PaysHandler) PayProvider(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var payDetails models.Pays
+	var payDetails PayData
 	err = json.NewDecoder(r.Body).Decode(&payDetails)
 	if err != nil {
 		httpError.InternalServerError(w, fmt.Sprintf("Pay provider, invalid JSON: \n\t%v", err))
 		return
 	}
-	if payDetails.Amount != nil || *payDetails.Amount <= 0 {
+	if payDetails.Amount <= 0 {
 		httpError.BadRequestError(w, "Pay provider, invalid request")
 		return
 	}
 	payDetails.User = user_id
 	payDetails.SupplyID = int64(supply_id)
+	err = payProvider(h.dbSession, r.Context(), payDetails)
+	if err != nil {
+		httpError.InternalServerError(w, fmt.Sprintf("Pay provider, internal server error: \n\t%v", err))
+		return
+	}
 
 	httpError.StatusCreated(w, "Payed", nil)
 }
 
-func payProvider(dbSession *sql.DB, ctx context.Context, pay models.Pays) error {
-	amount := sql.NullFloat64{Float64: float64(*pay.Amount), Valid: true}
+func payProvider(dbSession *sql.DB, ctx context.Context, pay PayData) error {
+	// amount := sql.NullFloat64{Float64: float64(*pay.Amount), Valid: true}
 	_, err := dbSession.ExecContext(
 		ctx,
 		`
@@ -93,7 +104,7 @@ func payProvider(dbSession *sql.DB, ctx context.Context, pay models.Pays) error 
 		pay.User,
 		pay.Provider,
 		pay.SupplyID,
-		amount,
+		pay.Amount,
 	)
 	if err != nil {
 		return err

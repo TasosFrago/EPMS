@@ -26,7 +26,8 @@
 	let invoiceList: Invoice[] = $state([]);
 	let user_id = $state(0);
 
-	let selectedProvider: Provider | null = $state(null);
+	//let selectedProvider: Provider | null = $state(null);
+	let selectProvider: boolean = $state(false);
 
 	const Supply_id = page.params.supply_id.padStart(5, '0');
 	console.log(page.params);
@@ -54,6 +55,7 @@
 	const paymentClick = (current_cost: number, providerName: string) => {
 		$formData.providerName = providerName;
 		$formData.amount = current_cost;
+		selectProvider = true;
 		console.log('Provider ' + $formData);
 	};
 
@@ -228,7 +230,7 @@
 					<InvoiceList {invoiceList} {handleClick} {paymentClick} />
 				</div>
 			</div>
-			<div class="w-full">
+			<div class="mt-16 w-full md:mt-0">
 				<div class="ml-10 border-l-[9px] border-l-green-600">
 					<div
 						class="inline-block border-[3px] border-l-0 border-black px-2 py-[0.8px] text-2xl font-bold"
@@ -245,7 +247,7 @@
 							<label for="amount-to-pay" class="text-lg">Amount to pay</label>
 							<div class="mr-5 lg:mr-10">
 								<input
-									class="mx-2 mt-1 h-8 w-20 rounded-lg"
+									class="mx-2 mt-1 h-8 w-32 rounded-lg"
 									type="number"
 									bind:value={$formData.amount}
 									min="1"
@@ -259,25 +261,27 @@
 						<div class="mt-4 flex flex-row items-center justify-between">
 							<label for="provider" class="text-lg">Select Provider</label>
 
-							<select
-								class="mr-5 flex h-8 appearance-none items-center rounded-lg text-left align-top leading-4 lg:mr-10"
-								bind:value={$formData.providerName}
-								required
-							>
-								{#if data.providers}
-									{#each data.providers as provider}
-										{#if provider.name == $formData.providerName}
-											<option class="mb-5 h-6 text-center text-sm" value={provider} selected>
+							{#if !selectProvider}
+								<select
+									class="ml-4 mr-5 flex h-8 appearance-none items-baseline justify-center rounded-lg text-left align-top leading-4 lg:mr-10"
+									bind:value={$formData.providerName}
+									required
+								>
+									{#if data.providers}
+										{#each data.providers as provider}
+											<option class="mb-5 h-6 text-left text-sm" value={provider}>
 												{provider.name}
 											</option>
-										{:else}
-											<option class="mb-5 h-6 text-center text-sm" value={provider}>
-												{provider.name}
-											</option>
-										{/if}
-									{/each}
-								{/if}
-							</select>
+										{/each}
+									{/if}
+								</select>
+							{:else}
+								<div
+									class=" mr-5 flex h-8 w-full items-baseline justify-center rounded-lg border-[2px] border-sky-600 pl-2 text-left text-sm lg:mr-10"
+								>
+									<span class="text-md mt-1 h-full w-full text-left">{$formData.providerName}</span>
+								</div>
+							{/if}
 						</div>
 						<button
 							type="submit"
