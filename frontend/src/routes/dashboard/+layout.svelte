@@ -6,6 +6,7 @@
 	import { PopupStatus } from '$lib/types';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
+	import { CookieManager } from '$lib';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 	let user: UserData = $state({
@@ -107,6 +108,7 @@
 				<li class="px-5">
 					<button
 						class="mb-4 w-full items-center rounded-xl bg-sky-600 p-1 text-center font-bold text-white hover:bg-red-500"
+						onclick={() => CookieManager.delete('jwt')}
 					>
 						Sign Out
 					</button>

@@ -21,17 +21,17 @@
 
 	function ClickHandler(is_paid_button: boolean, supply_id: string): () => void {
 		const invoiceUrl = `/dashboard/${parseInt(supply_id)}/invoice`;
-		const paymentUrl = `/dashboard/${parseInt(supply_id)}/payment`;
+		//const paymentUrl = `/dashboard/${parseInt(supply_id)}/payment`;
 		if (!is_paid_button && browser) {
 			return () => {
 				goto(invoiceUrl);
 			};
 		} else if (is_paid_button && browser) {
 			return () => {
-				goto(paymentUrl);
+				goto(invoiceUrl);
 			};
 		}
-		console.error('Undefined is_paid flag');
+		//console.error('Undefined is_paid flag');
 		return () => {};
 	}
 

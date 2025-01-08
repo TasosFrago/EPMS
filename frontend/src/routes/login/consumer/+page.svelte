@@ -4,6 +4,8 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import { apiUrl, debugLog } from '$lib/settings';
 	import { CookieManager, type CookieOptions } from '$lib';
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 
 	let data: Writable<LogInData> = writable({
 		email: '',
@@ -11,6 +13,10 @@
 	});
 	let errorMessage = $state('');
 	let showPopup = $state(false);
+
+	onMount(() => {
+		if (CookieManager.get('jwt') != null) goto('/dashboard');
+	});
 
 	const handleLogin = async (): Promise<void> => {
 		const loginData = $data;

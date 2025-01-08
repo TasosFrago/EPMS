@@ -8,6 +8,24 @@ export interface CustomHttpError extends HttpError {
 	}
 }
 
+export class PlanSelected implements CustomHttpError {
+	status: number;
+	body: App.Error;
+	shouldRedirect: { flag: boolean, path: string }
+
+	constructor(message: string, shouldRedirect: { flag: boolean, path: string }) {
+		//super(message);
+		this.status = 400
+		this.body = {
+			message: message
+		}
+		this.shouldRedirect = shouldRedirect
+		//this.name = "Empty Cookie";
+
+		Object.setPrototypeOf(this, EmptyCookie.prototype);
+	}
+}
+
 export class EmptyCookie implements CustomHttpError {
 	status: number;
 	body: App.Error;
