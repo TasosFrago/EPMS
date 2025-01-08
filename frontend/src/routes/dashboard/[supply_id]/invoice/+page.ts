@@ -1,5 +1,5 @@
 import { apiUrl } from '$lib/settings';
-import { UnauthorizedUserError, InternalServerError } from '$lib/types';
+import { UnauthorizedUserError, InternalServerError, PlanSelected } from '$lib/types';
 import type { PageServerLoad } from './$types';
 import type { Invoice } from '$lib/components/InvoiceList.svelte'
 
@@ -18,11 +18,13 @@ export const load: PageServerLoad = async ({ data, params }) => {
 		if (locals.user && locals.token) {
 			const invoices: Invoice[] = await getInvoiceList(locals.token, locals.user.user_id, params.supply_id);
 			const providers: Provider[] = await getProviders();
+			const plans = await getPlans(locals.token, locals.user.user_id, params.supply_id);
 
 			return {
 				invoices: invoices,
 				user_id: locals.user.user_id,
-				providers: providers
+				providers: providers,
+				plans: plans
 			}
 
 		}
@@ -56,6 +58,26 @@ const getProviders = async (): Promise<Provider[]> => {
 		return data;
 	} else {
 		throw new InternalServerError(data.error, { flag: true, path: "/" })
+	}
+}
+
+const getPlans = async (token: string, user_id: number, supply_id: number) => {
+	const response = await fetch(apiUrl(`/consumer/${user_id}/meters/${supply_id}/plan`), {
+		method: 'GET',
+		headers: {
+			'Authorization': 'Bearer ' + token
+		}
+	});
+	const data = await response.json()
+	if (response.ok) {
+		return data;
+	} else {
+		switch (response.status) {
+			case 401: // Unauthorized
+				throw new UnauthorizedUserError(data.warning, { flag: false, path: "" });
+			case 500:
+				throw new InternalServerError(data.error, { flag: false, path: "" });
+		}
 	}
 }
 

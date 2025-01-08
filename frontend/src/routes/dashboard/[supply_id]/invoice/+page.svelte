@@ -20,6 +20,16 @@
 		email?: string;
 	}
 
+	interface Plan {
+		ID: number;
+		Type: string;
+		Price: number;
+		Name: string;
+		Provider: string;
+		IssueDate: Date;
+		Duration: number;
+	}
+
 	let { data }: { data: PageData } = $props();
 
 	let loading = $state(true);
@@ -34,11 +44,11 @@
 
 	if (data.user_id) user_id = data.user_id;
 
+	const setPopup: (p: PopupStoreT) => void = getContext('popup');
 	if (data && !data.error && data.invoices) {
 		invoiceList.push(...data.invoices);
 		loading = false;
 	} else if (data.error) {
-		const setPopup: (p: PopupStoreT) => void = getContext('popup');
 		setPopup({
 			show: true,
 			msg: data.error.msg,
@@ -86,6 +96,70 @@
 	const SubmitPayment = async () => {
 		const formD = $formData;
 		console.log(formD);
+		try {
+			const token = CookieManager.get('jwt');
+			if (token == null) {
+				setPopup({
+					show: true,
+					msg: 'Unauthorized user',
+					status: PopupStatus.ERROR
+				});
+				if (browser) goto('/');
+				return;
+			}
+			const response = await fetch(apiUrl(`/consumer/${user_id}/meters/${Supply_id}/pays/`), {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					provider: formD.providerName,
+					amount: formD.amount
+				})
+			});
+			if (response.ok) {
+				setPopup({
+					show: true,
+					msg: 'Completed Payment to ' + formD.providerName,
+					status: PopupStatus.SUCCESS
+				});
+				return;
+			} else {
+				let errorMessage: string;
+				let redirect: boolean = false;
+				switch (response.status) {
+					case 401: // Unauthorized
+						errorMessage = 'Invalid Email. Please try again.';
+						redirect = true;
+						break;
+					case 400: // Unauthorized
+						errorMessage = 'Invalid data given.';
+						break;
+					case 500: // Internal Server Error
+						errorMessage = 'Server error. Please try again';
+						break;
+					default:
+						errorMessage = 'Unexpected error happend. Please try again';
+						break;
+				}
+				setPopup({
+					show: true,
+					msg: errorMessage,
+					status: PopupStatus.ERROR
+				});
+				if (browser && redirect) goto('/');
+			}
+		} catch (error) {
+			console.error(error);
+			setPopup({
+				show: true,
+				msg: 'Unexpected error occurred',
+				status: PopupStatus.ERROR
+			});
+			if (browser) goto('/');
+			return;
+		}
 	};
 
 	const getInvoice = async (user_id: number, invoice_id: number) => {
@@ -269,7 +343,7 @@
 								>
 									{#if data.providers}
 										{#each data.providers as provider}
-											<option class="mb-5 h-6 text-left text-sm" value={provider}>
+											<option class="mb-5 h-6 text-left text-sm" value={provider.name}>
 												{provider.name}
 											</option>
 										{/each}
@@ -305,9 +379,22 @@
 
 			<hr class="my-2 mr-1 border-t-[1.5px] border-black" />
 
-			<div class="overflow-x-auto p-2">
-				<InvoiceList {invoiceList} {handleClick} {paymentClick} />
-			</div>
+			{#if data.plans && data.plans.length != 0}
+				<span>Select plan</span>
+				<!-- <div class="mb-10 flex flex-col items-center justify-center"> -->
+				<!-- 	<h1 class="m-4 text-lg">You have no plan selected. Please select plan:</h1> -->
+				<!-- 	{#each data.plans as plan} -->
+				<!-- 		<button class="h-8 w-40 rounded-xl bg-blue-600 text-center font-bold text-white"> -->
+				<!-- 			Select plan -->
+				<!-- 			<ul> -->
+				<!-- 				<li>Id</li> -->
+				<!-- 			</ul> -->
+				<!-- 		</button> -->
+				<!-- 	{/each} -->
+				<!-- </div> -->
+			{:else}
+				<h1 class="m-4 text-lg">You have already selected a plan for the current month</h1>
+			{/if}
 		</div>
 	</div>
 {/if}
