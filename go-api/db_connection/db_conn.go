@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 	"golang.org/x/crypto/ssh"
@@ -57,6 +58,10 @@ func ConnectDBoSSH(config CredentialConfig) (*DBConn, error) {
 		sshcon.Close()
 		return nil, fmt.Errorf("SSHTunnelDB: %w", err)
 	}
+
+	db.SetMaxOpenConns(6)
+	db.SetMaxIdleConns(6)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
 	fmt.Printf("Successfully connected to the db!\n")
 

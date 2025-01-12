@@ -14,14 +14,23 @@ import (
 
 func main() {
 	// Load Environment variables
-	fmt.Println("Starting app...")
+	log.Println("Starting app...")
 	utls.LoadEnv()
 
 	address := fmt.Sprintf(":%s", os.Getenv("PORT"))
-	fmt.Printf("Server address %s\n", address)
+	log.Printf("Server address %s\n", address)
 
 	server := &http.Server{
 		Addr: address,
+	}
+
+	config := db_connection.CredentialConfig{
+		Usrname:    os.Getenv("USERNAME"),
+		Passwd:     os.Getenv("PASSWORD"),
+		ServerHost: os.Getenv("HOST"),
+		ServerPort: os.Getenv("SSH_PORT"),
+		DBHost:     "localhost:3306",
+		DBName:     "lab2425omada1_EPMS",
 	}
 
 	// Channel to receive db connection
@@ -29,22 +38,28 @@ func main() {
 	errChan := make(chan error, 1)
 
 	go func() {
-		config := db_connection.CredentialConfig{
-			Usrname:    os.Getenv("USERNAME"),
-			Passwd:     os.Getenv("PASSWORD"),
-			ServerHost: os.Getenv("HOST"),
-			ServerPort: os.Getenv("SSH_PORT"),
-			DBHost:     "localhost:3306",
-			DBName:     "lab2425omada1_EPMS",
+		var db *db_connection.DBConn = nil
+		for {
+			if db == nil || db.Conn.Ping() != nil {
+				log.Println("Attemting to connecct database via SSH tunnel...")
+				if db == nil {
+					log.Println("Connecting to db...")
+				} else {
+					log.Println("Reconnecting to the db...")
+				}
+				newDB, err := db_connection.ConnectDBoSSH(config)
+				if err != nil {
+					errChan <- err
+					log.Println("WARNING: Error while connecting to DB:", err)
+					time.Sleep(30 * time.Second)
+					continue
+				}
+				db = newDB
+				dbChan <- db
+				log.Println("Successfully connected to db!")
+			}
+			time.Sleep(2 * time.Minute)
 		}
-
-		fmt.Println("Connecting to database via SSH tunnel...")
-		db, err := db_connection.ConnectDBoSSH(config)
-		if err != nil {
-			errChan <- err
-			return
-		}
-		dbChan <- db
 	}()
 
 	// Start API server immediately
@@ -58,8 +73,9 @@ func main() {
 	// Wait for database connection result asynchronously
 	select {
 	case db := <-dbChan:
-		fmt.Println("Database connection established!")
-		api.SetDB(db.Conn) // Assuming router.Server has a SetDB method
+		log.Println("Database connection established!")
+		api.SetDB(db.Conn)
+
 		defer db.Cleanup()
 		server.Close()
 		if err := api.Run(); err != nil {
@@ -67,7 +83,7 @@ func main() {
 		}
 	case err := <-errChan:
 		log.Fatalf("Database connection error: %v", err)
-	case <-time.After(15 * time.Second):
+	case <-time.After(50 * time.Second):
 		log.Fatalf("Timeout waiting for database connection")
 	}
 

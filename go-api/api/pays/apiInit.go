@@ -26,12 +26,10 @@ func NewPaysHandler(db *sql.DB) *PaysHandler {
 }
 
 func AddPaysSubRouter(router *mux.Router, db *sql.DB) *mux.Router {
-	fmt.Println("Inside pay router")
 	// Define endpoints subrouter
 	subRouter := router.PathPrefix("/").Subrouter()
 
 	payHandl := NewPaysHandler(db)
-	fmt.Println("Added the payhandl")
 
 	subRouter.Use(middleware.AuthMiddleware)
 
