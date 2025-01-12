@@ -112,6 +112,7 @@
 							CookieManager.delete('jwt');
 							goto('/');
 						}}
+
 					>
 						Sign Out
 					</button>

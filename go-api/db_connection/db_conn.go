@@ -63,6 +63,7 @@ func ConnectDBoSSH(config CredentialConfig) (*DBConn, error) {
 	db.SetMaxIdleConns(6)
 	db.SetConnMaxLifetime(5 * time.Minute)
 
+
 	fmt.Printf("Successfully connected to the db!\n")
 
 	return &DBConn{
