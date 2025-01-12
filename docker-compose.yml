@@ -3,6 +3,7 @@ services:
     build:
       context: ./go-api
       dockerfile: Dockerfile
+      network: host
     container_name: go-api-app
     env_file:
       - ./.env
